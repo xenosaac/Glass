@@ -166,7 +166,7 @@ private struct RelayGlassButtonContainer: View {
  border: Color.glassBorder,
  highlight: colorScheme == .dark ? Color.glassHighlight : Color.white.opacity(0.72),
  shadow: Color.glassLowlight,
- foreground: colorScheme == .dark ? Color.glassBorder : .white
+ foreground: colorScheme == .dark ? Color.glassBorder : Color.glassText
  )
  case .secondary, .iconSecondary, .iconSidebar:
  return RetroPalette(
@@ -196,7 +196,7 @@ private struct RelayGlassButtonContainer: View {
  case .destructive, .iconError:
  return .white
  case .iconPrimary, .floatingChat:
- return colorScheme == .dark ? Color.glassBorder : .white
+ return colorScheme == .dark ? Color.glassBorder : Color.glassText
  }
  }
 
