@@ -27,7 +27,7 @@ import Foundation
 ///
 /// Tools degrade gracefully if keys are missing (return descriptive errors, never crash).
 public final class RelayConfig: @unchecked Sendable {
- public static var shared = RelayConfig
+ public static var shared = RelayConfig()
 
  private static let developerSecretsResource = "RelayDeveloperSecrets"
  private static let developerSecretsExtension = "plist"
@@ -42,7 +42,7 @@ public final class RelayConfig: @unchecked Sendable {
  public var mcpDefaultTimeout: TimeInterval
 
  private init() {
- geminiAPIKey = Self.resolveGeminiKey
+ geminiAPIKey = Self.resolveGeminiKey()
  mcpEnabled = ProcessInfo.processInfo.environment["MCP_ENABLED"] != "false"
  mcpDefaultTimeout = 30
  }
@@ -52,13 +52,13 @@ public final class RelayConfig: @unchecked Sendable {
  /// Called by Settings after Save / Remove so `AgentCore`'s per-fallback
  /// read picks up the latest resolved value without a session reload.
  public static func reloadGeminiKey() {
- shared.geminiAPIKey = resolveGeminiKey
+ shared.geminiAPIKey = resolveGeminiKey()
  }
 
  private static func resolveGeminiKey() -> String {
  resolvedGeminiKey(
- storedKey: GeminiKeyStore.load,
- bundledKey: bundledGeminiKey,
+ storedKey: GeminiKeyStore.load(),
+ bundledKey: bundledGeminiKey(),
  envKey: ProcessInfo.processInfo.environment["GEMINI_API_KEY"],
  persist: { key in try? GeminiKeyStore.save(key) }
  )

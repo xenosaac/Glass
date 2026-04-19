@@ -71,13 +71,13 @@ public final class GmailAuth: NSObject, @unchecked Sendable {
  let access_token: String
  let expires_in: Int
  }
- guard let r = try? JSONDecoder.decode(Resp.self, from: data) else {
+ guard let r = try? JSONDecoder().decode(Resp.self, from: data) else {
  throw GmailError.refreshFailed("Token response parse failed")
  }
  return GmailTokens(
  accessToken: r.access_token,
  refreshToken: refreshToken,
- expiresAt: Date.addingTimeInterval(TimeInterval(r.expires_in)),
+ expiresAt: Date().addingTimeInterval(TimeInterval(r.expires_in)),
  userEmail: nil // caller merges with existing email
  )
  }
@@ -109,7 +109,7 @@ public final class GmailAuth: NSObject, @unchecked Sendable {
  }
  session.presentationContextProvider = self
  session.prefersEphemeralWebBrowserSession = false
- if !session.start {
+ if !session.start() {
  cont.resume(throwing: GmailError.authFailed("Could not start auth session"))
  }
  }
@@ -141,7 +141,7 @@ public final class GmailAuth: NSObject, @unchecked Sendable {
  let expires_in: Int
  let id_token: String?
  }
- guard let r = try? JSONDecoder.decode(Resp.self, from: data) else {
+ guard let r = try? JSONDecoder().decode(Resp.self, from: data) else {
  throw GmailError.authFailed("Token response parse failed")
  }
  guard let refresh = r.refresh_token else {
@@ -152,7 +152,7 @@ public final class GmailAuth: NSObject, @unchecked Sendable {
  return GmailTokens(
  accessToken: r.access_token,
  refreshToken: refresh,
- expiresAt: Date.addingTimeInterval(TimeInterval(r.expires_in)),
+ expiresAt: Date().addingTimeInterval(TimeInterval(r.expires_in)),
  userEmail: Self.decodeEmailFromIDToken(r.id_token)
  )
  }
@@ -162,12 +162,12 @@ public final class GmailAuth: NSObject, @unchecked Sendable {
  private static func randomURLSafeString(byteCount: Int) -> String {
  var bytes = [UInt8](repeating: 0, count: byteCount)
  _ = SecRandomCopyBytes(kSecRandomDefault, byteCount, &bytes)
- return Data(bytes).base64URLEncodedString
+ return Data(bytes).base64URLEncodedString()
  }
 
  private static func codeChallenge(for verifier: String) -> String {
  let hash = SHA256.hash(data: Data(verifier.utf8))
- return Data(hash).base64URLEncodedString
+ return Data(hash).base64URLEncodedString()
  }
 
  private static func formEncode(_ dict: [String: String]) -> String {
@@ -201,7 +201,7 @@ extension GmailAuth: ASWebAuthenticationPresentationContextProviding {
  UIApplication.shared.connectedScenes
  .compactMap { $0 as? UIWindowScene }
  .flatMap { $0.windows }
- .first { $0.isKeyWindow } ?? ASPresentationAnchor
+ .first { $0.isKeyWindow } ?? ASPresentationAnchor()
  }
 }
 
@@ -209,7 +209,7 @@ extension GmailAuth: ASWebAuthenticationPresentationContextProviding {
 
 extension Data {
  func base64URLEncodedString() -> String {
- base64EncodedString
+ base64EncodedString()
  .replacingOccurrences(of: "+", with: "-")
  .replacingOccurrences(of: "/", with: "_")
  .replacingOccurrences(of: "=", with: "")

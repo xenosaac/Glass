@@ -12,7 +12,7 @@ struct ToolCard: View {
  VStack(alignment: .leading, spacing: 0) {
  Button {
  withAnimation(RetroMotion.chipToggle) {
- isExpanded.toggle
+ isExpanded.toggle()
  }
  } label: {
  header
@@ -41,7 +41,7 @@ struct ToolCard: View {
  .foregroundStyle(statusColor)
  }
 
- Spacer
+ Spacer()
 
  Image(systemName: "chevron.down")
  .font(.caption.weight(.medium))
@@ -129,7 +129,7 @@ struct ToolCard: View {
 
  private var displayName: String {
  name.split(separator: "_")
- .map { $0.capitalized() }
+ .map { $0.capitalized }
  .joined(separator: " ")
  }
 

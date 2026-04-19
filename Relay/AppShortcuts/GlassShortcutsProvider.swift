@@ -5,19 +5,19 @@ import AppIntents
 public struct GlassShortcutsProvider: AppShortcutsProvider {
  public static var appShortcuts: [AppShortcut] {
  AppShortcut(
- intent: AskGlassIntent,
+ intent: AskGlassIntent(),
  phrases: ["Ask \(.applicationName)"],
  shortTitle: "Ask Glass",
  systemImageName: "bubble.left.and.text.bubble.right"
  )
  AppShortcut(
- intent: CreateEventIntent,
+ intent: CreateEventIntent(),
  phrases: ["Create event with \(.applicationName)"],
  shortTitle: "Create Event",
  systemImageName: "calendar.badge.plus"
  )
  AppShortcut(
- intent: AddReminderIntent,
+ intent: AddReminderIntent(),
  phrases: ["Remind me with \(.applicationName)"],
  shortTitle: "Add Reminder",
  systemImageName: "checklist"

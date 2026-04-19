@@ -242,7 +242,7 @@ public actor AgentRunner {
  let currentTurnStartIndex = runtimeState.messages.count
  let priorHistoryTurnCount = state.turnCount
  runtimeState.messages.append(initialTurn.transcriptMessage)
- runtimeState.recoveryState = runtimeState.recoveryState.beganTurn
+ runtimeState.recoveryState = runtimeState.recoveryState.beganTurn()
 
  if case .user(let content) = initialTurn.transcriptMessage, !content.isMeta {
  runtimeState.turnCount += 1
@@ -281,7 +281,7 @@ public actor AgentRunner {
  )
  }
 
- var router = ModelRouter
+ var router = ModelRouter()
  var loopCount = 0
  let maxLoops = 10
  var usedCloudFallback = false
@@ -417,7 +417,7 @@ public actor AgentRunner {
  guard let he = primaryErr as? CactusModelHost.HostError else { return false }
  if case .inferenceFailed = he { return true }
  return false
- }
+ }()
  guard isPromotable,
  let cloud = cloudClient,
  !usedCloudFallback,
@@ -713,7 +713,7 @@ public actor AgentRunner {
  }
  }
  return false
- }
+ }()
  let cloudToolMode: HostToolMode
  if let bc = request.bindingContext,
  bc.classification == .declarativeFact,
@@ -1077,7 +1077,7 @@ public actor AgentRunner {
  )
  }
 
- let assistantBlocks = result.toolCalls.map { AssistantBlock.toolUse($0.asToolUseBlock) }
+ let assistantBlocks = result.toolCalls.map { AssistantBlock.toolUse($0.asToolUseBlock()) }
  runtimeState.messages.append(.assistant(AssistantContent(blocks: assistantBlocks)))
  runtimeState.recentToolState.activeToolUses = result.toolCalls.map {
  ToolUseSnapshot(id: $0.id, name: $0.name, inputJson: $0.inputJSON)
@@ -1115,7 +1115,7 @@ public actor AgentRunner {
  // already executed). Only fresh uses go to the dispatcher;
  // cached uses get a reissued result block carrying THIS
  // iteration's `toolUseId` so the model sees a normal result.
- let allUses = result.toolCalls.map { $0.asToolUseBlock }
+ let allUses = result.toolCalls.map { $0.asToolUseBlock() }
  let toolByName: [String: any RelayTool] = Dictionary(
  tools.map { ($0.name, $0) },
  uniquingKeysWith: { f, _ in f }
@@ -1158,11 +1158,11 @@ public actor AgentRunner {
  // Reconstruct results in original tool-call order.
  var orderedResults: [ToolResultBlock] = []
  orderedResults.reserveCapacity(allUses.count)
- var freshIter = batch.results.makeIterator
+ var freshIter = batch.results.makeIterator()
  for i in 0..<allUses.count {
  if let cached = cachedResults[i] {
  orderedResults.append(cached)
- } else if let fresh = freshIter.next {
+ } else if let fresh = freshIter.next() {
  orderedResults.append(fresh)
  }
  }
@@ -1996,9 +1996,9 @@ public actor AgentRunner {
  if raw.contains("No events found") {
  return "Your calendar is clear for the next 7 days."
  }
- let lines = raw.split(separator: "\n", omittingEmptySubsequences: true).map(String.init())
+ let lines = raw.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
  // Header line is "Found N events:" — skip it.
- let bullets = lines.dropFirst.filter { $0.hasPrefix("- ") }
+ let bullets = lines.dropFirst().filter { $0.hasPrefix("- ") }
  guard !bullets.isEmpty else { return raw }
  // Each bullet shape: "- HH:MM AM/PM: Title @ Location [Cal]" or
  // "- All day: Title [Cal]". Strip the leading "- " then split on
@@ -2006,7 +2006,7 @@ public actor AgentRunner {
  // and "@ Location" suffix to keep the sentence short.
  let summarized: [String] = bullets.map { bullet in
  let inner = String(bullet.dropFirst(2)) // remove "- "
- let parts = inner.split(separator: ":", maxSplits: 1).map(String.init())
+ let parts = inner.split(separator: ":", maxSplits: 1).map(String.init)
  guard parts.count == 2 else { return inner }
  let time = parts[0]
  var rest = parts[1].trimmingCharacters(in: .whitespaces)
@@ -2034,9 +2034,9 @@ public actor AgentRunner {
  if raw.contains("No reminders found") {
  return "You have no pending reminders."
  }
- let lines = raw.split(separator: "\n", omittingEmptySubsequences: true).map(String.init())
+ let lines = raw.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
  // Header is "Found N reminders:". Bullets start with "[ ]" or "[x]".
- let bullets = lines.dropFirst.filter { $0.hasPrefix("[") }
+ let bullets = lines.dropFirst().filter { $0.hasPrefix("[") }
  guard !bullets.isEmpty else { return raw }
  // Shape: "[ ] Title (due: Date) [ListName]". Strip the checkbox
  // and trailing "[ListName]" tag; keep the title + due hint.
@@ -2110,7 +2110,7 @@ public actor AgentRunner {
  var state = runtimeState
 
  let toolUse = ToolUseBlock(
- id: UUID.uuidString,
+ id: UUID().uuidString,
  name: shortcut.toolName,
  inputJson: shortcut.inputJson
  )

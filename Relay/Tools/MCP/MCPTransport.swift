@@ -221,7 +221,7 @@ public actor HTTPTransport {
  }
 
  private func metadata(from response: HTTPURLResponse) -> HTTPTransportMetadata {
- let headers = response.allHeaderFields.reduce(into: [String: String]) { partial, entry in
+ let headers = response.allHeaderFields.reduce(into: [String: String]()) { partial, entry in
  guard let key = entry.key as? String else { return }
  partial[key.lowercased()] = String(describing: entry.value)
  }
@@ -313,7 +313,7 @@ public actor HTTPTransport {
 
  private static func payloadMatchesRequest(_ payloadData: Data, requestID: String?) -> Bool {
  guard let requestID else { return true }
- guard let response = try? JSONDecoder.decode(JSONRPCResponse<AnyCodable>.self, from: payloadData) else {
+ guard let response = try? JSONDecoder().decode(JSONRPCResponse<AnyCodable>.self, from: payloadData) else {
  return false
  }
  return responseIDString(response.id) == requestID

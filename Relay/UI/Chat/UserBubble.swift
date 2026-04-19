@@ -48,8 +48,8 @@ struct UserBubble: View {
  case .image(let url):
  AsyncImage(url: url) { image in
  image
- .resizable
- .scaledToFit
+ .resizable()
+ .scaledToFit()
  .frame(maxWidth: 200)
  .clipShape(RetroCutShape(cut: 8))
  } placeholder: {

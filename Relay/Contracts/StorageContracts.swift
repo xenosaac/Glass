@@ -366,9 +366,9 @@ internal enum StorageContractIO {
  private static let decoder = JSONDecoder()
 
  internal static func ensureParentDirectory(for url: URL) throws {
- let parent = url.deletingLastPathComponent
- if !FileManager.default.fileExists(atPath: parent().path) {
- try FileManager.default.createDirectory(at: parent(), withIntermediateDirectories: true)
+ let parent = url.deletingLastPathComponent()
+ if !FileManager.default.fileExists(atPath: parent.path) {
+ try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
  }
  }
 
@@ -397,7 +397,7 @@ internal enum StorageContractIO {
  ) throws -> URL? {
  guard FileManager.default.fileExists(atPath: url.path) else { return nil }
  let timestamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "-")
- let archived = url.deletingLastPathComponent
+ let archived = url.deletingLastPathComponent()
  .appendingPathComponent(url.lastPathComponent + ".incompatible-\(storeID.rawValue)-\(timestamp).bak")
  if FileManager.default.fileExists(atPath: archived.path) {
  try FileManager.default.removeItem(at: archived)

@@ -16,7 +16,7 @@ struct SessionSidebar: View {
  var body: some View {
  GeometryReader { proxy in
  ZStack(alignment: .bottomTrailing) {
- Color.glassPageBackground.ignoresSafeArea
+ Color.glassPageBackground.ignoresSafeArea()
 
  ScrollView(showsIndicators: false) {
  VStack(alignment: .leading, spacing: GlassSpacing.xl) {
@@ -51,8 +51,8 @@ struct SessionSidebar: View {
  HStack(alignment: .top, spacing: GlassSpacing.m) {
  HStack(spacing: GlassSpacing.s) {
  Image("AppLogo")
- .resizable
- .scaledToFit
+ .resizable()
+ .scaledToFit()
  .frame(width: 28, height: 28)
  .clipShape(RetroCutShape(cut: 8))
 
@@ -69,7 +69,7 @@ struct SessionSidebar: View {
  Spacer(minLength: GlassSpacing.m)
 
  Button {
- onShowSettings
+ onShowSettings()
  } label: {
  Image(systemName: "gearshape")
  .font(.system(size: 18, weight: .semibold))
@@ -111,7 +111,7 @@ struct SessionSidebar: View {
  .buttonStyle(.relayGlass(.floatingChat, burst: .buttonTap))
  .contextMenu {
  Button {
- onNewSessionInFolder
+ onNewSessionInFolder()
  } label: {
  Label("New Chat in Folder...", systemImage: "folder.badge.plus")
  }
@@ -172,7 +172,7 @@ struct SessionRow: View {
  .buttonStyle(.relaySurfaceFeedback)
  .contextMenu {
  Button(role: .destructive) {
- onDelete
+ onDelete()
  } label: {
  Label("Delete", systemImage: "trash")
  }
@@ -199,7 +199,7 @@ struct SessionRow: View {
  .overlay(alignment: .top) {
  RetroCutShape(cut: 9)
  .stroke(Color.glassHighlight.opacity(0.75), lineWidth: 1)
- .mask { Rectangle.frame(height: 18) }
+ .mask { Rectangle().frame(height: 18) }
  }
  } else {
  Color.clear

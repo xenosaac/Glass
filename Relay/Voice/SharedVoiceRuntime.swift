@@ -55,20 +55,20 @@ public final class SharedVoiceRuntime: @unchecked Sendable {
 
  do {
  // Resolve and hydrate whisper model path
- guard let resolved = try await AppPaths.prepareWhisperSmallForLoad else {
+ guard let resolved = try await AppPaths.prepareWhisperSmallForLoad() else {
  let msg = "Whisper model not found in bundle or Documents"
  print("[VOICE_PREWARM] fail: \(msg)")
  whisperState = .failed(msg)
  notifyWaiters(nil)
  return
  }
- let modelPath = resolved().url.path
+ let modelPath = resolved.url.path
  let prepareMs = (CFAbsoluteTimeGetCurrent() - startedAt) * 1000
 
  // Load the model
  let host = CactusModelHost(modelPath: modelPath)
  let loadStartedAt = CFAbsoluteTimeGetCurrent()
- try await host.load
+ try await host.load()
  let loadMs = (CFAbsoluteTimeGetCurrent() - loadStartedAt) * 1000
 
  whisperHost = host
@@ -98,12 +98,12 @@ public final class SharedVoiceRuntime: @unchecked Sendable {
 
  case .failed:
  // Try once more
- await prewarmWhisper
+ await prewarmWhisper()
  return whisperHost
 
  case .notLoaded:
  // Start loading and wait
- Task { await prewarmWhisper }
+ Task { await prewarmWhisper() }
  return await withCheckedContinuation { continuation in
  waiters.append(continuation)
  }

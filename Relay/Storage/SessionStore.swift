@@ -26,7 +26,7 @@ public actor SessionStore {
 
  /// Append a single message as a JSON line to the session file.
  public func append(_ message: RelayMessage) throws {
- try ensureBaseDirectory
+ try ensureBaseDirectory()
  try StorageContractIO.ensureCompanionHeader(for: contract, at: schemaURL)
 
  let data = try encoder.encode(message)
@@ -35,8 +35,8 @@ public actor SessionStore {
 
  if FileManager.default.fileExists(atPath: fileURL.path) {
  let handle = try FileHandle(forWritingTo: fileURL)
- defer { handle.closeFile }
- handle.seekToEndOfFile
+ defer { handle.closeFile() }
+ handle.seekToEndOfFile()
  if let lineData = line.data(using: .utf8) {
  handle.write(lineData)
  }
@@ -49,7 +49,7 @@ public actor SessionStore {
 
  /// Load all messages from the session file. Skips lines that fail to decode.
  public func loadAll() throws -> [RelayMessage] {
- try ensureBaseDirectory
+ try ensureBaseDirectory()
  try StorageContractIO.ensureCompanionHeader(for: contract, at: schemaURL)
  guard FileManager.default.fileExists(atPath: fileURL.path) else { return [] }
 

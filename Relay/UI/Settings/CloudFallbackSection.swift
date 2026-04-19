@@ -14,9 +14,9 @@ final class CloudFallbackSectionModel {
  static let live = Dependencies(
  loadResolvedKey: { RelayConfig.shared.geminiAPIKey },
  saveKey: { try GeminiKeyStore.save($0) },
- deleteKey: { GeminiKeyStore.delete },
- reloadConfig: { RelayConfig.reloadGeminiKey },
- validateKey: { key in try await GeminiKeyValidator.validate(key) }
+ deleteKey: { GeminiKeyStore.delete() },
+ reloadConfig: { RelayConfig.reloadGeminiKey() },
+ validateKey: { key in try await GeminiKeyValidator().validate(key) }
  )
  }
 
@@ -52,7 +52,7 @@ final class CloudFallbackSectionModel {
  }
 
  func refresh() {
- let resolved = dependencies.loadResolvedKey.trimmingCharacters(in: .whitespacesAndNewlines)
+ let resolved = dependencies.loadResolvedKey().trimmingCharacters(in: .whitespacesAndNewlines)
  maskedStoredKey = resolved.isEmpty ? nil : Self.maskedKey(for: resolved)
  }
 
@@ -74,9 +74,9 @@ final class CloudFallbackSectionModel {
  do {
  try await dependencies.validateKey(trimmedDraft)
  try dependencies.saveKey(trimmedDraft)
- dependencies.reloadConfig
+ dependencies.reloadConfig()
  draftKey = ""
- refresh
+ refresh()
  return true
  } catch {
  errorMessage = error.localizedDescription
@@ -86,10 +86,10 @@ final class CloudFallbackSectionModel {
 
  func remove() {
  errorMessage = nil
- dependencies.deleteKey
- dependencies.reloadConfig
+ dependencies.deleteKey()
+ dependencies.reloadConfig()
  draftKey = ""
- refresh
+ refresh()
  }
 
  private static func maskedKey(for key: String) -> String {
@@ -106,7 +106,7 @@ final class CloudFallbackSectionModel {
 /// configured state: masked stored key inline + Remove
 /// changing keys requires Remove -> Paste new key -> Save
 struct CloudFallbackSection: View {
- @State private var model = CloudFallbackSectionModel
+ @State private var model = CloudFallbackSectionModel()
 
  var body: some View {
  List {
@@ -150,10 +150,10 @@ struct CloudFallbackSection: View {
  SettingsSectionHeader(title: "About")
  }
  }
- .settingsListChrome
+ .settingsListChrome()
  .navigationTitle("Cloud Fallback")
  .navigationBarTitleDisplayMode(.large)
- .task { model.refresh }
+ .task { model.refresh() }
  }
 
  private var keyEditorCard: some View {
@@ -165,7 +165,7 @@ struct CloudFallbackSection: View {
  if model.canSave || model.isWorking {
  Button {
  Task {
- _ = await model.save
+ _ = await model.save()
  }
  } label: {
  HStack(spacing: GlassSpacing.xs) {
@@ -188,7 +188,7 @@ struct CloudFallbackSection: View {
 
  if model.canRemove {
  Button(role: .destructive) {
- model.remove
+ model.remove()
  } label: {
  Label("Remove Key", systemImage: "trash")
  .glassType(.body)
@@ -247,7 +247,7 @@ struct CloudFallbackSection: View {
  } else {
  SecureField("Paste API key", text: $model.draftKey)
  .textContentType(.password)
- .autocorrectionDisabled
+ .autocorrectionDisabled()
  .textInputAutocapitalization(.never)
  .glassType(.body)
  .accessibilityLabel("Gemini API key")
@@ -264,6 +264,6 @@ struct CloudFallbackSection: View {
 
 #Preview {
  NavigationStack {
- CloudFallbackSection
+ CloudFallbackSection()
  }
 }

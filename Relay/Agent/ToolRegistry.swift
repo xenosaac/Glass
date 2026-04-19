@@ -15,7 +15,7 @@ public actor ToolRegistry {
  }
 
  public func unregister(named name: String) {
- providers.removeAll { $0.providerName == name }
+ providers.removeAll() { $0.providerName == name }
  }
 
  /// Collect tools from every registered provider. Called fresh each turn.

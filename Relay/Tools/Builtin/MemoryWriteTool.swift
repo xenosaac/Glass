@@ -56,7 +56,7 @@ public struct MemoryWriteTool: RelayTool, Sendable {
  public func call(input: ToolInput, context: ToolCallContext) async throws -> ToolResult {
  let decoded: Input
  do {
- decoded = try JSONDecoder.decode(Input.self, from: input.json)
+ decoded = try JSONDecoder().decode(Input.self, from: input.json)
  } catch {
  return ToolResult(
  toolUseId: "",
@@ -65,7 +65,7 @@ public struct MemoryWriteTool: RelayTool, Sendable {
  )
  }
 
- guard let store = context.services.memoryStore else {
+ guard let store = context.services.memoryStore() else {
  return ToolResult(
  toolUseId: "",
  output: "Memory store is not available in this session.",

@@ -44,7 +44,7 @@ public struct MessageComposeView: UIViewControllerRepresentable {
  }
 
  public func makeUIViewController(context: Context) -> MFMessageComposeViewController {
- let vc = MFMessageComposeViewController
+ let vc = MFMessageComposeViewController()
  vc.messageComposeDelegate = context.coordinator
  vc.recipients = data.recipients
  vc.body = data.body
@@ -79,5 +79,5 @@ public struct MessageComposeView: UIViewControllerRepresentable {
 
 /// Check if the device can send text messages.
 public func canSendText() -> Bool {
- MFMessageComposeViewController.canSendText
+ MFMessageComposeViewController.canSendText()
 }

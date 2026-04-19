@@ -107,7 +107,7 @@ internal actor TurnCommitCoordinator {
  )
  _ = try await runtimeSidecarStore.save(sidecar)
  } catch {
- updatedTrace.entries.removeLast
+ updatedTrace.entries.removeLast()
  updatedTrace.append(stage: .failureSidecarWritten, succeeded: false, detail: error.localizedDescription)
  }
 

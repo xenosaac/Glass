@@ -9,7 +9,7 @@ public struct GmailTokens: Codable, Sendable {
 
  /// Returns true if the access token is within 30 seconds of expiry.
  public var isExpired: Bool {
- Date >= expiresAt.addingTimeInterval(-30)
+ Date() >= expiresAt.addingTimeInterval(-30)
  }
 }
 
@@ -23,11 +23,11 @@ public actor GmailTokenStore {
 
  public func load() -> GmailTokens? {
  guard let data = try? Keychain.load(service: service, account: account) else { return nil }
- return try? JSONDecoder.decode(GmailTokens.self, from: data)
+ return try? JSONDecoder().decode(GmailTokens.self, from: data)
  }
 
  public func save(_ tokens: GmailTokens) throws {
- let data = try JSONEncoder.encode(tokens)
+ let data = try JSONEncoder().encode(tokens)
  try Keychain.store(data, service: service, account: account)
  }
 

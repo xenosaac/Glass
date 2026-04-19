@@ -65,13 +65,13 @@ public actor AttachmentStore {
  /// `<root>/<id>.json`, updates the cache, and invalidates the
  /// inverted index so the next `retrieve(...)` will rebuild it.
  public func ingest(_ attachment: Attachment) async throws {
- try await loadIfNeeded
+ try await loadIfNeeded()
 
  if cache.values.contains(where: { $0.contentHash == attachment.contentHash }) {
  return
  }
 
- try ensureRootExists
+ try ensureRootExists()
  let url = fileURL(for: attachment.id)
  let data = try encoder.encode(attachment)
  try data.write(to: url, options: .atomic)
@@ -83,7 +83,7 @@ public actor AttachmentStore {
  /// All attachments in this session, sorted by ingestion time
  /// ascending (oldest first). Loads from disk on first call.
  public func all() async -> [Attachment] {
- (try? await loadIfNeeded)
+ (try? await loadIfNeeded())
 
  return cache.values.sorted() { $0.ingestedAt < $1.ingestedAt }
  }
@@ -91,7 +91,7 @@ public actor AttachmentStore {
  /// Delete the attachment with `id`. Removes both the on-disk
  /// JSON and the in-memory cache entry. Missing is a no-op.
  public func remove(_ id: UUID) async throws {
- try await loadIfNeeded
+ try await loadIfNeeded()
  guard cache[id] != nil else { return }
 
  let url = fileURL(for: id)
@@ -107,8 +107,8 @@ public actor AttachmentStore {
  /// ships a lenient loader: malformed JSON files are
  /// skipped (logged in DEBUG), not fatal.
  public func load() async throws {
- try ensureRootExists
- cache.removeAll
+ try ensureRootExists()
+ cache.removeAll()
 
  let files: [URL]
  do {
@@ -149,11 +149,11 @@ public actor AttachmentStore {
  topK: Int,
  tokenBudget: Int
  ) async -> [SelectedAttachmentChunk] {
- (try? await loadIfNeeded)
+ (try? await loadIfNeeded())
 
  guard !queryTerms.isEmpty, topK > 0, tokenBudget > 0 else { return [] }
 
- rebuildIndexIfNeeded
+ rebuildIndexIfNeeded()
 
  // Score each chunk by summing log(1 + TF) over matched terms.
  // For each matched chunk we only need its (attachmentId,
@@ -221,7 +221,7 @@ public actor AttachmentStore {
 
  private func rebuildIndexIfNeeded() {
  guard indexDirty else { return }
- invertedIndex.removeAll
+ invertedIndex.removeAll()
  for (id, attachment) in cache {
  for (i, chunk) in attachment.digest.chunks.enumerated() {
  let terms = AttachmentIndexer.tokenize(chunk.text)
@@ -239,12 +239,12 @@ public actor AttachmentStore {
 
  private func loadIfNeeded() async throws {
  if !loaded {
- try await load
+ try await load()
  }
  }
 
  private func ensureRootExists() throws {
- let parent = root.deletingLastPathComponent
+ let parent = root.deletingLastPathComponent()
  if !fileManager.fileExists(atPath: parent.path) {
  try fileManager.createDirectory(at: parent, withIntermediateDirectories: true)
  }

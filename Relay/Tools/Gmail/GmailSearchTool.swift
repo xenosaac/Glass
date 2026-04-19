@@ -39,7 +39,7 @@ public struct GmailSearchTool: RelayTool, Sendable {
  let maxResults = (params["max_results"] as? Int) ?? 10
 
  let gmail = context.services.gmail
- guard await gmail.isSignedIn else {
+ guard await gmail().isSignedIn() else {
  return ToolResult(
  toolUseId: "",
  output: "Error: Not signed in to Gmail. Connect your account in Settings → Gmail.",
@@ -48,7 +48,7 @@ public struct GmailSearchTool: RelayTool, Sendable {
  }
 
  do {
- let results = try await gmail.search(query: query, maxResults: maxResults)
+ let results = try await gmail().search(query: query, maxResults: maxResults)
  if results.isEmpty {
  return ToolResult(toolUseId: "", output: "No messages found for query: \(query)")
  }

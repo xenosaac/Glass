@@ -72,14 +72,14 @@ final class AppleSpeechTranscriber: @unchecked Sendable {
  onFailure: @escaping @Sendable (String) -> Void
  ) throws {
  let status = SFSpeechRecognizer.authorizationStatus
- guard status == .authorized else {
+ guard status() == .authorized else {
  throw TranscribeError.permissionDenied
  }
  guard let recognizer, recognizer.isAvailable else {
  throw TranscribeError.recognizerUnavailable
  }
 
- let req = SFSpeechAudioBufferRecognitionRequest
+ let req = SFSpeechAudioBufferRecognitionRequest()
  req.shouldReportPartialResults = true
  // Force on-device — preserves Glass's no-cloud-for-voice posture.
  // Available iOS 13+; no network round-trips; consistent latency.
@@ -91,7 +91,7 @@ final class AppleSpeechTranscriber: @unchecked Sendable {
  let recognitionTask = recognizer.recognitionTask(with: req) { [weak self] result, error in
  if let error {
  onFailure(error.localizedDescription)
- self?.cleanup
+ self?.cleanup()
  return
  }
  guard let result else { return }
@@ -99,7 +99,7 @@ final class AppleSpeechTranscriber: @unchecked Sendable {
  Task { @MainActor [weak self] in self?.partialTranscript = text }
  if result.isFinal {
  onFinal(text)
- self?.cleanup
+ self?.cleanup()
  } else {
  onPartial(text)
  }
@@ -127,15 +127,15 @@ final class AppleSpeechTranscriber: @unchecked Sendable {
  /// Signal end-of-audio. The recognition task will fire `onFinal` shortly
  /// after with the complete transcript.
  func stop() {
- request?.endAudio
+ request?.endAudio()
  // Don't tear down task immediately — it needs to drain pending audio
  // and fire onFinal first. cleanup is invoked from the task callback.
  }
 
  /// Hard-cancel without finalizing (user dismissed).
  func cancel() {
- task?.cancel
- cleanup
+ task?.cancel()
+ cleanup()
  }
 
  private func cleanup() {

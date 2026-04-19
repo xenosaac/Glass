@@ -9,8 +9,8 @@ public struct GmailServiceImpl: GmailService, Sendable {
  private let apiClient: GmailAPIClient
 
  public init() {
- let store = GmailTokenStore
- let auth = GmailAuth
+ let store = GmailTokenStore()
+ let auth = GmailAuth()
  self.tokenStore = store
  self.auth = auth
  self.apiClient = GmailAPIClient(tokenStore: store, auth: auth)
@@ -23,29 +23,28 @@ public struct GmailServiceImpl: GmailService, Sendable {
  }
 
  public func isSignedIn() async -> Bool {
- await tokenStore.load != nil
+ await tokenStore.load() != nil
  }
 
  public func currentUserEmail() async -> String? {
- await tokenStore.load?.userEmail
+ await tokenStore.load()?.userEmail
  }
 
  public func signIn() async throws {
  guard GmailConfig.isConfigured else { throw GmailError.notConfigured }
- let fresh = try await auth.authenticate
+ var fresh = try await auth.authenticate()
  try await tokenStore.save(fresh)
  // Populate userEmail from /profile if the id_token didn't carry it.
  if fresh.userEmail == nil {
- if let profile = try? await apiClient.profile {
- var updated = fresh
- updated.userEmail = profile.emailAddress
- try? await tokenStore.save(updated)
+ if let profile = try? await apiClient.profile() {
+ fresh.userEmail = profile.emailAddress
+ try? await tokenStore.save(fresh)
  }
  }
  }
 
  public func signOut() async {
- await tokenStore.clear
+ await tokenStore.clear()
  }
 
  // MARK: - Read surface
@@ -69,7 +68,7 @@ public struct GmailServiceImpl: GmailService, Sendable {
  let source = try await apiClient.messageFull(id: sourceMessageID)
  let raw = Self.buildReplyRFC2822(source: source, body: body)
  return try await apiClient.createDraft(
- raw: raw.base64URLEncoded,
+ raw: raw.base64URLEncoded(),
  threadId: source.threadId
  )
  }
@@ -102,7 +101,7 @@ public struct GmailServiceImpl: GmailService, Sendable {
  inReplyTo: inReplyTo,
  references: references
  )
- return try await apiClient.sendRaw(raw: raw.base64URLEncoded, threadId: threadId)
+ return try await apiClient.sendRaw(raw: raw.base64URLEncoded(), threadId: threadId)
  }
 
  // MARK: - RFC 2822 helpers
@@ -154,6 +153,6 @@ public struct GmailServiceImpl: GmailService, Sendable {
 
 private extension String {
  func base64URLEncoded() -> String {
- Data(self.utf8).base64URLEncodedString
+ Data(self.utf8).base64URLEncodedString()
  }
 }

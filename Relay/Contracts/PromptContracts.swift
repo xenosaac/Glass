@@ -163,7 +163,7 @@ internal struct PromptAssemblyDiagnostics: Sendable, Codable, Equatable {
  self.sectionOrder = sections.map(\.id)
 
  var sectionsByLayer = Dictionary(
- uniqueKeysWithValues: PromptSectionLayer.allCases.map { ($0, [PromptSectionID]) }
+ uniqueKeysWithValues: PromptSectionLayer.allCases.map { ($0, [PromptSectionID]()) }
  )
  var characterCountByLayer = Dictionary(
  uniqueKeysWithValues: PromptSectionLayer.allCases.map { ($0, 0) }

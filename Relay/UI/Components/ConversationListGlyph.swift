@@ -20,7 +20,7 @@ struct ConversationListGlyph: View {
 }
 
 #Preview {
- ConversationListGlyph
- .padding
+ ConversationListGlyph()
+ .padding()
  .background(Color.glassPageBackground)
 }

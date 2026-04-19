@@ -29,7 +29,7 @@ struct ChatView: View {
  var onAutoTextConsumed: ((String) -> Void)? = nil
 
  @State private var viewModel: ChatViewModel?
- @State private var composerDraft = ComposerDraft
+ @State private var composerDraft = ComposerDraft()
  @State private var autoVoiceError: String?
  @State private var didAutoStartVoice = false
  @State private var didAutoSubmitText = false
@@ -43,8 +43,8 @@ struct ChatView: View {
  .overlay {
  if isAccessoryDrawerPresented {
  Color.black.opacity(0.001)
- .ignoresSafeArea
- .contentShape(Rectangle)
+ .ignoresSafeArea()
+ .contentShape(Rectangle())
  .onTapGesture {
  withAnimation(.easeOut(duration: 0.18)) {
  isAccessoryDrawerPresented = false
@@ -54,54 +54,7 @@ struct ChatView: View {
  }
  .scrollDismissesKeyboard(.interactively)
  .safeAreaInset(edge: .top, spacing: 0) {
- // Top stack — compact top-bar cluster + error banner. The
- // chat title is intentionally gone; active model identity now
- // lives in the left-top chip, and tapping it only reveals the
- // inactive alternate model below.
- VStack(spacing: GlassSpacing.s) {
- if horizontalSizeClass == .compact {
- HStack(alignment: .center, spacing: GlassSpacing.s) {
- Button {
- onShowSessionList?
- } label: {
- ConversationListGlyph
- .frame(width: 44, height: 44)
- .contentShape(Circle)
- }
- .buttonStyle(.relayGlass(.iconSidebar))
- .accessibilityLabel("Conversation list")
-
- VStack(alignment: .leading, spacing: GlassSpacing.xs) {
- Button {
- withAnimation(RetroMotion.chipToggle) {
- showingAlternateModel.toggle
- }
- } label: {
- ChatModelChip(model: activeHeaderModel)
- }
- .buttonStyle(.relaySurfaceFeedback)
- .accessibilityLabel("Current model: \(activeHeaderModel.rawValue)")
- .accessibilityHint("Shows available models")
-
- if showingAlternateModel {
- ChatModelChip(
- model: activeHeaderModel.alternate,
- active: false
- )
- .transition(.move(edge: .top).combined(with: .opacity))
- }
- }
-
- Spacer(minLength: 0)
- }
- }
-
- if let err = viewModel?.error, !err.isEmpty {
- errorBanner(err)
- }
- }
- .padding(.top, GlassSpacing.s)
- .padding(.horizontal, GlassSpacing.m)
+ topSafeAreaContent
  }
  .safeAreaInset(edge: .bottom, spacing: 0) {
  // Composer stack — floating InputBar only. The old status bar
@@ -143,15 +96,15 @@ struct ChatView: View {
  // with SwiftUI's one-shot `.task` lifecycle: the task captured
  // the initial (false) prop value and never re-entered the
  // auto-voice branch after the shell flipped the prop.
- await loadSession
- triggerAutoStartVoiceIfNeeded
- triggerAutoSubmitTextIfNeeded
+ await loadSession()
+ triggerAutoStartVoiceIfNeeded()
+ triggerAutoSubmitTextIfNeeded()
  }
  .onChange(of: autoStartVoice) { _, _ in
- triggerAutoStartVoiceIfNeeded
+ triggerAutoStartVoiceIfNeeded()
  }
  .onChange(of: autoSubmitText) { _, _ in
- triggerAutoSubmitTextIfNeeded
+ triggerAutoSubmitTextIfNeeded()
  }
  .onChange(of: activeHeaderModel) { _, _ in
  showingAlternateModel = false
@@ -164,40 +117,8 @@ struct ChatView: View {
  .onChange(of: voiceEnginePhase) { _, newPhase in
  handleVoiceEnginePhaseChange(newPhase)
  }
- .sheet(item: mailComposeBinding) { data in
- if canSendMail {
- MailComposeView(data: data) { result in
- viewModel?.pendingMailCompose = nil
- }
- } else {
- VStack(spacing: GlassSpacing.s) {
- Text("Cannot send email")
- .glassType(.bodyEmphasis)
- Text("Mail is not configured on this device")
- .glassType(.caption)
- .foregroundStyle(Color.glassTextMuted)
- Button("Dismiss") { viewModel?.pendingMailCompose = nil }
- .buttonStyle(.relayGlass(.secondary, burst: .subtleTap))
- }
- }
- }
- .sheet(item: smsComposeBinding) { data in
- if canSendText {
- MessageComposeView(data: data) { result in
- viewModel?.pendingSMSCompose = nil
- }
- } else {
- VStack(spacing: GlassSpacing.s) {
- Text("Cannot send messages")
- .glassType(.bodyEmphasis)
- Text("iMessage is not configured on this device")
- .glassType(.caption)
- .foregroundStyle(Color.glassTextMuted)
- Button("Dismiss") { viewModel?.pendingSMSCompose = nil }
- .buttonStyle(.relayGlass(.secondary, burst: .subtleTap))
- }
- }
- }
+ .sheet(item: mailComposeBinding, content: mailSheet)
+ .sheet(item: smsComposeBinding, content: smsSheet)
  .onChange(of: viewModel?.pendingComposerText) { _, newValue in
  // Dictation completion handoff: drain the view-model's
  // `pendingComposerText` into the composer field and clear it.
@@ -301,7 +222,7 @@ struct ChatView: View {
  onVoiceTap: handleVoiceTap,
  onAccessoryToggle: {
  withAnimation(.easeOut(duration: 0.18)) {
- isAccessoryDrawerPresented.toggle
+ isAccessoryDrawerPresented.toggle()
  }
  },
  onAccessoryDismiss: {
@@ -334,9 +255,9 @@ struct ChatView: View {
  // If idle, start a fresh dictation session.
  isAccessoryDrawerPresented = false
  if viewModel?.isVoiceActive == true {
- viewModel?.stopVoice
+ viewModel?.stopVoice()
  } else {
- viewModel?.startVoice
+ viewModel?.startVoice()
  }
  }
 
@@ -404,7 +325,7 @@ struct ChatView: View {
  // Stable bottom anchor for scroll targeting
  Color.clear.frame(height: 1).id("bottom")
  }
- .padding
+ .padding()
  .padding(.bottom, chatBottomContentPadding)
  }
  .background(chatBackgroundGradient)
@@ -435,12 +356,98 @@ struct ChatView: View {
  return vm.isRunning && vm.streamingText.isEmpty
  }
 
+ @ViewBuilder
+ private func mailSheet(_ data: MailComposeData) -> some View {
+ if canSendMail() {
+ MailComposeView(data: data) { _ in viewModel?.pendingMailCompose = nil }
+ } else {
+ VStack(spacing: GlassSpacing.s) {
+ Text("Cannot send email").glassType(.bodyEmphasis)
+ Text("Mail is not configured on this device")
+ .glassType(.caption).foregroundStyle(Color.glassTextMuted)
+ Button("Dismiss") { viewModel?.pendingMailCompose = nil }
+ .buttonStyle(.relayGlass(.secondary, burst: .subtleTap))
+ }
+ }
+ }
+
+ @ViewBuilder
+ private func smsSheet(_ data: MessageComposeData) -> some View {
+ if canSendText() {
+ MessageComposeView(data: data) { _ in viewModel?.pendingSMSCompose = nil }
+ } else {
+ VStack(spacing: GlassSpacing.s) {
+ Text("Cannot send messages").glassType(.bodyEmphasis)
+ Text("iMessage is not configured on this device")
+ .glassType(.caption).foregroundStyle(Color.glassTextMuted)
+ Button("Dismiss") { viewModel?.pendingSMSCompose = nil }
+ .buttonStyle(.relayGlass(.secondary, burst: .subtleTap))
+ }
+ }
+ }
+
+ @ViewBuilder
+ private var topSafeAreaContent: some View {
+ VStack(spacing: GlassSpacing.s) {
+ if horizontalSizeClass == .compact {
+ topCompactBar
+ }
+ if let err = viewModel?.error, !err.isEmpty {
+ errorBanner(err)
+ }
+ }
+ .padding(.top, GlassSpacing.s)
+ .padding(.horizontal, GlassSpacing.m)
+ }
+
+ private var topCompactBar: some View {
+ HStack(alignment: .center, spacing: GlassSpacing.s) {
+ Button {
+ onShowSessionList?()
+ } label: {
+ ConversationListGlyph()
+ .frame(width: 44, height: 44)
+ .contentShape(Circle())
+ }
+ .buttonStyle(.relayGlass(.iconSidebar))
+ .accessibilityLabel("Conversation list")
+
+ topCompactModelStack
+
+ Spacer(minLength: 0)
+ }
+ }
+
+ @ViewBuilder
+ private var topCompactModelStack: some View {
+ VStack(alignment: .leading, spacing: GlassSpacing.xs) {
+ Button {
+ withAnimation(RetroMotion.chipToggle) {
+ showingAlternateModel.toggle()
+ }
+ } label: {
+ ChatModelChip(model: activeHeaderModel)
+ }
+ .buttonStyle(.relaySurfaceFeedback)
+ .accessibilityLabel("Current model: \(activeHeaderModel.rawValue)")
+ .accessibilityHint("Shows available models")
+
+ if showingAlternateModel {
+ ChatModelChip(
+ model: activeHeaderModel.alternate,
+ active: false
+ )
+ .transition(.move(edge: .top).combined(with: .opacity))
+ }
+ }
+ }
+
  /// Pure chat-stage backdrop. The glass surfaces already carry enough
  /// depth; the user requested a strict white / black canvas.
  @ViewBuilder
  private var chatBackgroundGradient: some View {
  chatBackgroundColor
- .ignoresSafeArea
+ .ignoresSafeArea()
  }
 
  @Environment(\.colorScheme) private var colorScheme
@@ -492,7 +499,7 @@ struct ChatView: View {
  Image(systemName: "xmark")
  .font(.caption.weight(.medium))
  .frame(width: 28, height: 28)
- .contentShape(Rectangle)
+ .contentShape(Rectangle())
  }
  .buttonStyle(.relayGlass(.iconSecondary))
  .accessibilityLabel("Dismiss error")
@@ -510,7 +517,7 @@ struct ChatView: View {
  didAutoSubmitText = false
  autoVoiceError = nil
  cleanupDraftAssets(composerDraft)
- composerDraft.clear
+ composerDraft.clear()
  selectedPhotoItems = []
  let vm = ChatViewModel(
  sessionId: sessionId,
@@ -518,7 +525,7 @@ struct ChatView: View {
  sharedServices: sharedServices
  )
  vm.onSessionUpdated = onSessionUpdated
- await vm.loadHistory
+ await vm.loadHistory()
  self.viewModel = vm
  }
 
@@ -534,9 +541,9 @@ struct ChatView: View {
  envelope: envelope,
  onAccepted: {
  cleanupDraftAssets(draftSnapshot)
- composerDraft.clear
+ composerDraft.clear()
  selectedPhotoItems = []
- onSessionUpdated
+ onSessionUpdated()
  }
  ) ?? false
  if !accepted {
@@ -556,7 +563,7 @@ struct ChatView: View {
  private func triggerAutoStartVoiceIfNeeded() {
  guard autoStartVoice, !didAutoStartVoice, viewModel != nil else { return }
  didAutoStartVoice = true
- viewModel?.startVoice
+ viewModel?.startVoice()
  if viewModel?.isVoiceActive != true {
  autoVoiceError = viewModel?.error ?? "Could not start voice input"
  }
@@ -576,7 +583,7 @@ struct ChatView: View {
  guard let text = autoSubmitText, !didAutoSubmitText, viewModel != nil else { return }
  didAutoSubmitText = true
  composerDraft.text = text
- sendMessage
+ sendMessage()
  onAutoTextConsumed?(sessionId)
  }
 
@@ -721,19 +728,19 @@ struct ChatView: View {
 
  private func removePendingImage(_ image: PendingDraftImage) {
  cleanupFileIfNeeded(image.stagedURL)
- composerDraft.pendingImages.removeAll { $0.id == image.id }
+ composerDraft.pendingImages.removeAll() { $0.id == image.id }
  }
 
  private func removePendingFile(_ file: PendingFileIngestion) {
  cleanupFileIfNeeded(file.sourceURL)
- composerDraft.pendingFiles.removeAll { $0.attachmentID == file.attachmentID }
+ composerDraft.pendingFiles.removeAll() { $0.attachmentID == file.attachmentID }
  }
 
  private func stageImportedFile(from sourceURL: URL) throws -> PendingFileIngestion {
  let accessed = sourceURL.startAccessingSecurityScopedResource
  defer {
- if accessed {
- sourceURL.stopAccessingSecurityScopedResource
+ if accessed() {
+ sourceURL.stopAccessingSecurityScopedResource()
  }
  }
 
@@ -755,7 +762,7 @@ struct ChatView: View {
  }
 
  private func stageDraftData(_ data: Data, subdirectory: String, filename: String) throws -> URL {
- let directory = draftStagingDirectory.appendingPathComponent(subdirectory, isDirectory: true)
+ let directory = draftStagingDirectory().appendingPathComponent(subdirectory, isDirectory: true)
  try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
  let url = directory.appendingPathComponent(filename)
  try data.write(to: url, options: .atomic)
@@ -763,7 +770,7 @@ struct ChatView: View {
  }
 
  private func stageDraftFile(from sourceURL: URL, subdirectory: String, filename: String) throws -> URL {
- let directory = draftStagingDirectory.appendingPathComponent(subdirectory, isDirectory: true)
+ let directory = draftStagingDirectory().appendingPathComponent(subdirectory, isDirectory: true)
  try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
  let destinationURL = directory.appendingPathComponent(filename)
  if FileManager.default.fileExists(atPath: destinationURL.path) {
@@ -822,8 +829,8 @@ struct MessageRow: View {
  NavigationStack {
  ChatView(
  sessionId: "preview",
- sessionIndex: SessionIndex,
- sharedServices: SharedServices,
+ sessionIndex: SessionIndex(),
+ sharedServices: SharedServices(),
  onSessionUpdated: {}
  )
  }

@@ -27,7 +27,7 @@ public struct AskGlassIntent: AppIntent {
  } else {
  LaunchActionStore.set(.startVoice)
  }
- return .result
+ return .result()
  }
 }
 
@@ -51,8 +51,8 @@ public struct CreateEventIntent: AppIntent {
  public init() {}
 
  public func perform() async throws -> some IntentResult & ReturnsValue<String> {
- let service = SystemIntentsService
- let granted = await service.requestCalendarAccess
+ let service = SystemIntentsService()
+ let granted = await service.requestCalendarAccess()
  guard granted else {
  return .result(value: "Calendar access denied. Grant access in Settings > Privacy > Calendar.")
  }
@@ -85,8 +85,8 @@ public struct AddReminderIntent: AppIntent {
  public init() {}
 
  public func perform() async throws -> some IntentResult & ReturnsValue<String> {
- let service = SystemIntentsService
- let granted = await service.requestRemindersAccess
+ let service = SystemIntentsService()
+ let granted = await service.requestRemindersAccess()
  guard granted else {
  return .result(value: "Reminders access denied. Grant access in Settings > Privacy > Reminders.")
  }

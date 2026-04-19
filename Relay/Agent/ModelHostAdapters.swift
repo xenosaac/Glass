@@ -76,7 +76,7 @@ internal struct CactusOnDeviceHostAdapter: ModelHostAdapter {
  CompiledTurnResponse(
  tier: tier,
  outputText: result.text,
- toolCalls: result.toolUses.map(ParsedToolCall.init()),
+ toolCalls: result.toolUses.map(ParsedToolCall.init),
  finishReason: finishReason(
  for: result,
  allowCloudHandoff: request.hostOptions.allowCloudHandoff
@@ -92,7 +92,7 @@ internal struct CactusOnDeviceHostAdapter: ModelHostAdapter {
  continuation.finish(throwing: error)
  }
  }
- continuation.onTermination = { _ in task.cancel }
+ continuation.onTermination = { _ in task.cancel() }
  }
  }
 }
@@ -131,8 +131,8 @@ internal struct FunctionGemmaToolHostAdapter: ModelHostAdapter {
  internal func streamTurn(_ request: CompiledTurnRequest) -> AsyncThrowingStream<HostStreamEvent, Error> {
  AsyncThrowingStream { continuation in
  let task = Task {
- guard let host = await runtime.ensureReady else {
- let message = await runtime.lastFailureReason
+ guard let host = await runtime.ensureReady() else {
+ let message = await runtime.lastFailureReason()
  ?? "FunctionGemma tool specialist model is unavailable."
  continuation.finish(
  throwing: ModelHostAdapterError.functionGemmaUnavailable(message)
@@ -167,7 +167,7 @@ internal struct FunctionGemmaToolHostAdapter: ModelHostAdapter {
  continuation.finish(throwing: error)
  }
  }
- continuation.onTermination = { _ in task.cancel }
+ continuation.onTermination = { _ in task.cancel() }
  }
  }
 }

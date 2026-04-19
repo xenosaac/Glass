@@ -158,7 +158,7 @@ public actor GeminiClient {
  toolsArray.append(["functionDeclarations": toolDecls])
  }
  if needsWebGrounding {
- toolsArray.append(["googleSearch": ()[String: Any]])
+ toolsArray.append(["googleSearch": [String: Any]()])
  }
  if !toolsArray.isEmpty {
  body["tools"] = toolsArray

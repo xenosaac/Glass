@@ -30,7 +30,7 @@ public actor MCPToolProvider: ToolProvider {
  // Clear previous errors
  lastErrors = [:]
 
- let configs = await configStore.enabledServers
+ let configs = await configStore.enabledServers()
 
  guard !configs.isEmpty else {
  return []
@@ -41,7 +41,7 @@ public actor MCPToolProvider: ToolProvider {
  for config in configs {
  do {
  let client = getOrCreateClient(for: config)
- let mcpTools = try await client.listTools
+ let mcpTools = try await client.listTools()
 
  let wrapped = mcpTools.map { def in
  MCPToolWrapper(
@@ -65,7 +65,7 @@ public actor MCPToolProvider: ToolProvider {
  /// Force refresh tool listings for all servers.
  public func refreshAll() async {
  for client in clients.values {
- await client.invalidateCache
+ await client.invalidateCache()
  _ = try? await client.listTools(forceRefresh: true)
  }
  }
@@ -104,6 +104,6 @@ public actor MCPToolProvider: ToolProvider {
 
  /// Clear all cached clients.
  public func clearClients() {
- clients.removeAll
+ clients.removeAll()
  }
 }

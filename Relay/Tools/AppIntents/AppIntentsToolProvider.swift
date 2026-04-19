@@ -9,14 +9,14 @@ public struct AppIntentsToolProvider: ToolProvider, Sendable {
 
  public func tools(for context: ToolCallContext) async -> [any RelayTool] {
  [
- CalendarCreateEventTool,
- CalendarListEventsTool,
- CalendarDeleteEventTool,
- RemindersAddTool,
- RemindersListTool,
- RemindersCompleteTool,
- EmailDraftTool,
- SMSSendTool,
+ CalendarCreateEventTool(),
+ CalendarListEventsTool(),
+ CalendarDeleteEventTool(),
+ RemindersAddTool(),
+ RemindersListTool(),
+ RemindersCompleteTool(),
+ EmailDraftTool(),
+ SMSSendTool(),
  ]
  }
 }

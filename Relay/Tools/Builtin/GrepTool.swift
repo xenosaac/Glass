@@ -121,7 +121,7 @@ public struct GrepTool: RelayTool, Sendable {
  public func call(input: ToolInput, context toolCtx: ToolCallContext) async throws -> ToolResult {
  let decoded: Input
  do {
- decoded = try JSONDecoder.decode(Input.self, from: input.json)
+ decoded = try JSONDecoder().decode(Input.self, from: input.json)
  } catch {
  return ToolResult(toolUseId: "", output: "Invalid input: \(error.localizedDescription)", isError: true)
  }
@@ -133,7 +133,7 @@ public struct GrepTool: RelayTool, Sendable {
  if let explicit = decoded.path {
  searchRoot = FileReadTool.expandPath(explicit)
  } else {
- let workspaces = await toolCtx.services.fileProvider.authorizedFolders
+ let workspaces = await toolCtx.services.fileProvider().authorizedFolders()
  if let first = workspaces.first {
  searchRoot = first.standardizedFileURL.path
  } else {
@@ -171,7 +171,7 @@ public struct GrepTool: RelayTool, Sendable {
  } else {
  globRegex = nil
  }
- let typeExtensions: Set<String>? = decoded.type.flatMap { Self.typeToExtensions[$0].map(Set.init()) }
+ let typeExtensions: Set<String>? = decoded.type.flatMap { Self.typeToExtensions[$0].map(Set.init) }
 
  // Enumerate candidate files.
  let candidateFiles = isSingleFile
@@ -276,7 +276,7 @@ public struct GrepTool: RelayTool, Sendable {
  let allLines: [String]
  if let data = try? Data(contentsOf: URL(fileURLWithPath: file.path)),
  let text = String(data: data, encoding: .utf8) {
- allLines = text.split(separator: "\n", omittingEmptySubsequences: false).map(String.init())
+ allLines = text.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
  } else {
  allLines = []
  }
@@ -335,11 +335,11 @@ public struct GrepTool: RelayTool, Sendable {
  options: [.skipsHiddenFiles]
  ) else { return out }
 
- while let item = enumerator.nextObject as? URL {
+ while let item = enumerator.nextObject() as? URL {
  let components = item.pathComponents
  if components.contains(where: { GlobTool.excludedDirectoryNames.contains($0) }) {
  if let isDirectory = try? item.resourceValues(forKeys: [.isDirectoryKey]).isDirectory, isDirectory == true {
- enumerator.skipDescendants
+ enumerator.skipDescendants()
  }
  continue
  }

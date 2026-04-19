@@ -31,7 +31,7 @@ final class SharedServices {
  /// sees a stale nil during the cold-start warm window.
  ///
  /// Without this, on a 16s Gemma cold-load the chat session is
- /// constructed long before `loadIfNeeded` runs to set `memoryStore`,
+ /// constructed long before `loadIfNeeded()` runs to set `memoryStore`,
  /// the coordinator captures the still-nil reference, and
  /// deterministic writeback silently no-ops for the rest of the
  /// session — surfaced by Isaac's device test the same day:
@@ -41,7 +41,7 @@ final class SharedServices {
  /// the directory is created lazily on first read/write via
  /// `ensureDirectory`, so eager init is free.
  init() {
- self.memoryStore = MemoryStore
+ self.memoryStore = MemoryStore()
  }
 
  @MainActor
@@ -55,7 +55,7 @@ final class SharedServices {
  // read-only app bundle fails on device.
  let resolved: AppPaths.ResolvedModel
  do {
- guard let prepared = try await AppPaths.prepareGemmaE2BForLoad else {
+ guard let prepared = try await AppPaths.prepareGemmaE2BForLoad() else {
  state = .failed("Gemma-4-E2B is missing from the app bundle. Reinstall the app to recover.")
  return
  }
@@ -72,7 +72,7 @@ final class SharedServices {
  let host = CactusModelHost(modelPath: modelPath)
  let gemmaLoadStartedAt = CFAbsoluteTimeGetCurrent()
  do {
- try await host.load
+ try await host.load()
  modelHost = host
  } catch {
  let sourceNote = resolved.source == .documents
@@ -101,22 +101,22 @@ final class SharedServices {
  // model). Skipping it keeps `SharedVoiceRuntime` intact and the
  // Cactus Whisper fallback still works — just flip the flag and
  // prewarm resumes automatically.
- let runtime = SharedVoiceRuntime
+ let runtime = SharedVoiceRuntime()
  voiceRuntime = runtime
- let functionRuntime = SharedFunctionGemmaRuntime
+ let functionRuntime = SharedFunctionGemmaRuntime()
  functionGemmaRuntime = functionRuntime
  Task {
  if VoiceEngine.useAppleSpeech {
  print("[VOICE_PREWARM] skipped — apple_speech is default backend")
  } else {
- await runtime.prewarmWhisper
+ await runtime.prewarmWhisper()
  }
  await functionRuntime.prewarmIfAvailable(trigger: "post_voice_startup")
  }
 
  // 2. FileProvider — workspace-bookmark authorization store. Runs
  // off the main actor.
- fileProvider = await SharedServices.loadFileProvider
+ fileProvider = await SharedServices.loadFileProvider()
 
  // 2b. MemoryStore — eagerly constructed in `SharedServices.init()`
  // (R6-Mem hotfix ). Kept here as a no-op marker for
@@ -125,15 +125,15 @@ final class SharedServices {
  // pointing at the previous instance.
 
  // 3. SystemIntentsService
- appIntentsService = SystemIntentsService
+ appIntentsService = SystemIntentsService()
 
  // 4. MCPToolProvider
  if RelayConfig.shared.mcpEnabled {
- mcpProvider = MCPToolProvider
+ mcpProvider = MCPToolProvider()
  }
 
  // 5. Gmail (native embedded provider — single-account personal workflow).
- gmailService = GmailServiceImpl
+ gmailService = GmailServiceImpl()
 
  state = .loaded
  }
@@ -143,9 +143,9 @@ final class SharedServices {
  /// returned, so downstream code can keep its `fileProvider != nil`
  /// assumption.
  private nonisolated static func loadFileProvider() async -> FileProvider {
- let fp = FileProvider
+ let fp = FileProvider()
  do {
- try await fp.initialize
+ try await fp.initialize()
  } catch {
  print("⚠️ FileProvider init failed: \(error)")
  }
@@ -220,7 +220,7 @@ internal enum SessionSelectionPolicy {
 }
 
 struct RelayAppShell: View {
- @State private var sessionIndex = SessionIndex
+ @State private var sessionIndex = SessionIndex()
  @State private var sessions: [SessionMetadata] = []
  @State private var currentSessionId: String?
  @AppStorage("lastSessionId") private var persistedSessionId: String?
@@ -235,7 +235,7 @@ struct RelayAppShell: View {
  @Environment(\.scenePhase) private var scenePhase
  @Environment(\.colorScheme) private var systemColorScheme
  @State private var isLoading = true
- @State private var sharedServices = SharedServices
+ @State private var sharedServices = SharedServices()
  /// Observed so the Settings sheet's `.preferredColorScheme` below reacts
  /// to changes. Sheets on iOS present in a separate UIWindow and do NOT
  /// inherit the WindowGroup's preferredColorScheme set in `RelayApp`, so
@@ -290,7 +290,7 @@ struct RelayAppShell: View {
  onSelectSession: { sessionId in
  Task { await activateSession(sessionId) }
  },
- onNewSession: { await createNewSession },
+ onNewSession: { await createNewSession() },
  onDeleteSession: deleteSession,
  onShowSettings: { showingSettings = true },
  onNewSessionInFolder: { showingWorkspacePicker = true }
@@ -338,7 +338,7 @@ struct RelayAppShell: View {
  SettingsView(
  sessionIndex: sessionIndex,
  sharedServices: sharedServices,
- onClearAllSessions: { await clearAllHistoryFromShell }
+ onClearAllSessions: { await clearAllHistoryFromShell() }
  )
  // Sheets present in a separate UIWindow; they don't inherit
  // the WindowGroup-level preferredColorScheme. Apply it here
@@ -372,10 +372,10 @@ struct RelayAppShell: View {
  // Fires on first entry to .loaded. Re-fires cleanly if we return
  // here after a Retry (SwiftUI attaches a fresh .task per view
  // identity).
- await loadSessions
+ await loadSessions()
 
  // Consume shortcut-initiated launch action if present.
- let launchAction = LaunchActionStore.consume
+ let launchAction = LaunchActionStore.consume()
  if launchAction != .none {
  ColdStart.pending = false
  await consumeLaunchAction(launchAction)
@@ -384,7 +384,7 @@ struct RelayAppShell: View {
  // Plain cold launch — just create a session. NO auto-voice.
  // Auto-voice only triggers for .startVoice shortcut (handled
  // in consumeLaunchAction above).
- await createNewSession
+ await createNewSession()
  }
 
  initialLaunchResolved = true
@@ -399,7 +399,7 @@ struct RelayAppShell: View {
  .onChange(of: scenePhase) { _, newPhase in
  guard initialLaunchResolved else { return }
  if newPhase == .active {
- let action = LaunchActionStore.consume
+ let action = LaunchActionStore.consume()
  if action != .none {
  Task { await consumeLaunchAction(action) }
  }
@@ -412,8 +412,8 @@ struct RelayAppShell: View {
  private var emptyState: some View {
  VStack(spacing: GlassSpacing.l) {
  Image("AppLogo")
- .resizable
- .scaledToFit
+ .resizable()
+ .scaledToFit()
  .frame(width: 64, height: 64)
  .clipShape(RetroCutShape(cut: 10))
 
@@ -439,8 +439,8 @@ struct RelayAppShell: View {
 
  private func loadSessions() async {
  do {
- try await sessionIndex.load
- sessions = await sessionIndex.all
+ try await sessionIndex.load()
+ sessions = await sessionIndex.all()
 
  if let persisted = persistedSessionId,
  sessions.contains(where: { $0.id == persisted }) {
@@ -451,8 +451,8 @@ struct RelayAppShell: View {
  } else {
  currentSessionId = sessions.first?.id
  }
- await purgeOrphanedEmptySessions
- sessions = await sessionIndex.all
+ await purgeOrphanedEmptySessions()
+ sessions = await sessionIndex.all()
  currentSessionId = SessionSelectionPolicy.refreshedSelection(
  currentSessionId: currentSessionId,
  sessions: sessions
@@ -466,13 +466,13 @@ struct RelayAppShell: View {
 
  private func refreshSessions() {
  Task {
- sessions = await sessionIndex.all
+ sessions = await sessionIndex.all()
  currentSessionId = SessionSelectionPolicy.refreshedSelection(
  currentSessionId: currentSessionId,
  sessions: sessions
  )
- await purgeOrphanedEmptySessions
- sessions = await sessionIndex.all
+ await purgeOrphanedEmptySessions()
+ sessions = await sessionIndex.all()
  currentSessionId = SessionSelectionPolicy.refreshedSelection(
  currentSessionId: currentSessionId,
  sessions: sessions
@@ -495,14 +495,14 @@ struct RelayAppShell: View {
  }
  }
 
- if workspace == nil, let reusableSessionID = reusableEmptySessionID {
+ if workspace == nil, let reusableSessionID = reusableEmptySessionID() {
  await activateSession(reusableSessionID)
  return reusableSessionID
  }
 
  do {
  let session = try await sessionIndex.create(workspace: workspace)
- sessions = await sessionIndex.all
+ sessions = await sessionIndex.all()
  await activateSession(session.id)
 
  // Workspace folder indexing used to mine files into the MemoryPalace
@@ -522,17 +522,17 @@ struct RelayAppShell: View {
  case .startVoice:
  // Capture session ID immediately — don't read currentSessionId after async waits
  // since user could switch sessions during model load.
- guard let sessionId = await createNewSession else { return }
+ guard let sessionId = await createNewSession() else { return }
  print("[COLD_VOICE] createdSessionId=\(sessionId)")
- await waitForModelReady
+ await waitForModelReady()
  if sharedServices.modelHost != nil {
  pendingAutoVoiceSessionId = sessionId
  print("[COLD_VOICE] pendingSetForSessionId=\(sessionId)")
  }
  case .askText(let text):
- guard let sessionId = await createNewSession else { return }
+ guard let sessionId = await createNewSession() else { return }
  print("[COLD_TEXT] createdSessionId=\(sessionId)")
- await waitForModelReady
+ await waitForModelReady()
  if sharedServices.modelHost != nil {
  pendingTextForSession = (sessionId, text)
  print("[COLD_TEXT] pendingSetForSessionId=\(sessionId)")
@@ -568,7 +568,7 @@ struct RelayAppShell: View {
  @MainActor
  private func clearAllHistoryFromShell() async {
  do {
- try await sessionIndex.deleteAll
+ try await sessionIndex.deleteAll()
  } catch {
  print("Clear chat history failed: \(error)")
  return
@@ -637,13 +637,13 @@ struct RelayAppShell: View {
  }
 
  clearStateForDeletedSession(id)
- sessions = await sessionIndex.all
+ sessions = await sessionIndex.all()
  currentSessionId = SessionSelectionPolicy.refreshedSelection(
  currentSessionId: currentSessionId,
  sessions: sessions
  )
- await purgeOrphanedEmptySessions
- sessions = await sessionIndex.all
+ await purgeOrphanedEmptySessions()
+ sessions = await sessionIndex.all()
  currentSessionId = SessionSelectionPolicy.refreshedSelection(
  currentSessionId: currentSessionId,
  sessions: sessions
@@ -684,5 +684,5 @@ struct RelayAppShell: View {
 }
 
 #Preview {
- RelayAppShell
+ RelayAppShell()
 }

@@ -87,7 +87,7 @@ public struct ToolPolicyNormalizer: Sendable {
 public struct DefaultApprovalBroker: ApprovalBroker, Sendable {
  private let normalizer: ToolPolicyNormalizer
 
- public init(normalizer: ToolPolicyNormalizer = ToolPolicyNormalizer) {
+ public init(normalizer: ToolPolicyNormalizer = ToolPolicyNormalizer()) {
  self.normalizer = normalizer
  }
 

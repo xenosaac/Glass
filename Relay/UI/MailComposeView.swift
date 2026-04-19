@@ -57,7 +57,7 @@ public struct MailComposeView: UIViewControllerRepresentable {
  }
 
  public func makeUIViewController(context: Context) -> MFMailComposeViewController {
- let vc = MFMailComposeViewController
+ let vc = MFMailComposeViewController()
  vc.mailComposeDelegate = context.coordinator
  vc.setToRecipients(data.to)
  vc.setCcRecipients(data.cc)
@@ -96,5 +96,5 @@ public struct MailComposeView: UIViewControllerRepresentable {
 
 /// Check if the device can send email.
 public func canSendMail() -> Bool {
- MFMailComposeViewController.canSendMail
+ MFMailComposeViewController.canSendMail()
 }

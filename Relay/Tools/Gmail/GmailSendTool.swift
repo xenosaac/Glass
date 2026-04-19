@@ -53,7 +53,7 @@ public struct GmailSendTool: RelayTool, Sendable {
  let inReplyTo = params["in_reply_to_message_id"] as? String
 
  let gmail = context.services.gmail
- guard await gmail.isSignedIn else {
+ guard await gmail().isSignedIn() else {
  return ToolResult(
  toolUseId: "",
  output: "Error: Not signed in to Gmail. Connect your account in Settings → Gmail.",
@@ -62,7 +62,7 @@ public struct GmailSendTool: RelayTool, Sendable {
  }
 
  do {
- let id = try await gmail.sendMessage(
+ let id = try await gmail().sendMessage(
  to: to,
  subject: subject,
  body: body,

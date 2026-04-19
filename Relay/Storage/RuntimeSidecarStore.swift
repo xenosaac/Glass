@@ -55,8 +55,8 @@ internal actor RuntimeSidecarStore {
  }
 
  internal func save(_ sidecar: TurnRuntimeSidecar) throws -> URL {
- try AppPaths.createIfNeeded
- try ensureDirectoryExists
+ try AppPaths.createIfNeeded()
+ try ensureDirectoryExists()
  let url = fileURL(for: sidecar.turnID)
  let envelope = VersionedStoreEnvelope(header: contract.schemaHeader, payload: sidecar)
  let data = try encoder.encode(envelope)
@@ -105,7 +105,7 @@ internal actor RuntimeSidecarStore {
  return envelope.payload
  }
 
- if let legacy = try? decoder.decode(TurnRuntimeSidecar().self, from: data) {
+ if let legacy = try? decoder.decode(TurnRuntimeSidecar.self, from: data) {
  let migrated = VersionedStoreEnvelope(header: contract.schemaHeader, payload: legacy)
  let migratedData = try encoder.encode(migrated)
  try migratedData.write(to: url, options: .atomic)
@@ -270,7 +270,7 @@ internal actor ReplayFixtureStore {
 
  @discardableResult
  internal func save(_ fixture: ReplayFixture, name: String) throws -> URL {
- try ensureDirectoryExists
+ try ensureDirectoryExists()
  let url = fileURL(for: name)
  let envelope = VersionedStoreEnvelope(header: contract.schemaHeader, payload: fixture)
  let data = try encoder.encode(envelope)
@@ -291,7 +291,7 @@ internal actor ReplayFixtureStore {
  return envelope.payload
  }
 
- if let legacy = try? decoder.decode(ReplayFixture().self, from: data) {
+ if let legacy = try? decoder.decode(ReplayFixture.self, from: data) {
  _ = try save(legacy, name: name)
  return legacy
  }
@@ -311,7 +311,7 @@ internal actor ReplayFixtureStore {
  .lowercased()
  .replacingOccurrences(of: " ", with: "-")
  .filter { $0.isLetter || $0.isNumber || $0 == "-" || $0 == "_" }
- let fallback = safe.isEmpty ? UUID.uuidString.lowercased() : safe
+ let fallback = safe.isEmpty ? UUID().uuidString.lowercased() : safe
  return baseDir.appendingPathComponent("\(fallback).json")
  }
 }

@@ -46,8 +46,8 @@ public struct RemindersListTool: RelayTool, Sendable {
 
  let appIntents = context.services.appIntents
 
- if !(await appIntents.hasRemindersAccess) {
- let granted = await appIntents.requestRemindersAccess
+ if !(await appIntents().hasRemindersAccess()) {
+ let granted = await appIntents().requestRemindersAccess()
  if !granted {
  return ToolResult(
  toolUseId: "",
@@ -58,7 +58,7 @@ public struct RemindersListTool: RelayTool, Sendable {
  }
 
  do {
- let reminders = try await appIntents.listReminders(
+ let reminders = try await appIntents().listReminders(
  includeCompleted: includeCompleted,
  dueBefore: dueBefore,
  lists: lists

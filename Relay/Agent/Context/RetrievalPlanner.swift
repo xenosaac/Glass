@@ -235,7 +235,7 @@ public struct RetrievalPlanner: Sendable {
  }
 
  var candidates: [ScoredContextArtifact] = []
- var seenIDs = Set<String>
+ var seenIDs = Set<String>()
  for result in results {
  guard let relativeID = workspaceRelativeID(for: result.path, workspaceURL: workspaceURL),
  !seenIDs.contains(relativeID) else {

@@ -61,8 +61,8 @@ public struct CalendarListEventsTool: RelayTool, Sendable {
 
  let appIntents = context.services.appIntents
 
- if !(await appIntents.hasCalendarAccess) {
- let granted = await appIntents.requestCalendarAccess
+ if !(await appIntents().hasCalendarAccess()) {
+ let granted = await appIntents().requestCalendarAccess()
  if !granted {
  return ToolResult(
  toolUseId: "",
@@ -73,7 +73,7 @@ public struct CalendarListEventsTool: RelayTool, Sendable {
  }
 
  do {
- let events = try await appIntents.listCalendarEvents(
+ let events = try await appIntents().listCalendarEvents(
  from: startDate,
  to: endDate,
  calendars: calendars
@@ -94,7 +94,7 @@ public struct CalendarListEventsTool: RelayTool, Sendable {
  // are already sorted by startDate); a "(N more this period)"
  // suffix conveys the remaining count without listing each one.
  var uniqueByTitle: [(title: String, first: CalendarEventResult)] = []
- var seenTitles = Set<String>
+ var seenTitles = Set<String>()
  var totalByTitle: [String: Int] = [:]
  for event in events {
  totalByTitle[event.title, default: 0] += 1

@@ -122,13 +122,13 @@ private struct RelayGlassButtonContainer: View {
  shape.inset(by: 2)
  .stroke(palette.highlight.opacity(configuration.isPressed ? 0.3 : 0.95), lineWidth: 1.25)
  .mask(alignment: .top) {
- Rectangle.frame(height: isIconVariant ? 12 : 16)
+ Rectangle().frame(height: isIconVariant ? 12 : 16)
  }
 
  shape.inset(by: 2)
  .stroke(palette.shadow.opacity(configuration.isPressed ? 0.25 : 0.6), lineWidth: 1)
  .mask(alignment: .bottom) {
- Rectangle.frame(height: isIconVariant ? 10 : 14)
+ Rectangle().frame(height: isIconVariant ? 10 : 14)
  }
  }
  }
@@ -264,6 +264,6 @@ extension ButtonStyle where Self == RelayGlassButtonStyle {
 
 public extension ButtonStyle where Self == RelaySurfaceFeedbackButtonStyle {
  static var relaySurfaceFeedback: RelaySurfaceFeedbackButtonStyle {
- RelaySurfaceFeedbackButtonStyle
+ RelaySurfaceFeedbackButtonStyle()
  }
 }

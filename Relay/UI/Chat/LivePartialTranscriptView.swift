@@ -16,7 +16,7 @@ struct LivePartialTranscriptView: View {
  .textCase(.uppercase)
  Text(partialText.isEmpty ? "Speak now…" : partialText)
  .glassType(.body)
- .italic
+ .italic()
  .foregroundStyle(Color.glassTextMuted)
  .multilineTextAlignment(.leading)
  .frame(maxWidth: .infinity, alignment: .leading)

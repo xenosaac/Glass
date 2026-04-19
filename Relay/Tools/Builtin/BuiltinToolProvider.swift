@@ -19,11 +19,11 @@ public struct BuiltinToolProvider: ToolProvider, Sendable {
  // `GeminiClient` enables `googleSearch` grounding tool. No more
  // Brave API dependency / paid subscription required.
  [
- DateTimeTool,
- MemoryWriteTool,
- FileReadTool,
- GlobTool,
- GrepTool,
+ DateTimeTool(),
+ MemoryWriteTool(),
+ FileReadTool(),
+ GlobTool(),
+ GrepTool(),
  ]
  }
 }

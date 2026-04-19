@@ -63,11 +63,11 @@ public struct FileListTool: RelayTool, Sendable {
  }
 
  let formatter = ByteCountFormatter()
- formatter().countStyle = .file
+ formatter.countStyle = .file
 
  let lines = entries.map { entry -> String in
  let typeStr = entry.isDirectory ? "[DIR]" : "[FILE]"
- let sizeStr = entry.isDirectory ? "" : " (\(formatter().string(fromByteCount: entry.size)))"
+ let sizeStr = entry.isDirectory ? "" : " (\(formatter.string(fromByteCount: entry.size)))"
  return "\(typeStr) \(entry.name)\(sizeStr)"
  }
 

@@ -31,7 +31,7 @@ internal struct PromptCompiler: Sendable {
  }
 
  let renderedCurrentTurnFocus = input.currentTurnFocus
- ?? FocusSectionRenderer.render(input.turnOverlay)
+ ?? FocusSectionRenderer().render(input.turnOverlay)
  if let currentTurnFocus = SystemPrompt.currentTurnFocusSection(
  renderedCurrentTurnFocus,
  profileID: input.profileID

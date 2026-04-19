@@ -35,12 +35,12 @@ public enum LaunchActionStore {
  /// Shared defaults for the App Group. `nil` if the suite cannot be
  /// initialized (entitlement missing, bad identifier, etc.).
  private static var shared: UserDefaults? {
- defaultsProvider
+ defaultsProvider()
  }
 
  public static func set(_ action: PendingLaunchAction) {
  guard let defaults = shared,
- let data = try? JSONEncoder.encode(
+ let data = try? JSONEncoder().encode(
  VersionedStoreEnvelope(header: contract.schemaHeader, payload: action)
  ) else { return }
  defaults.set(data, forKey: key)
@@ -52,18 +52,18 @@ public enum LaunchActionStore {
  return .none
  }
 
- if let envelope = try? JSONDecoder.decode(VersionedStoreEnvelope<PendingLaunchAction>.self, from: data),
+ if let envelope = try? JSONDecoder().decode(VersionedStoreEnvelope<PendingLaunchAction>.self, from: data),
  envelope.header.isCompatible(with: contract) {
  defaults.removeObject(forKey: key)
  return envelope.payload
  }
 
- if let action = try? JSONDecoder.decode(PendingLaunchAction.self, from: data) {
+ if let action = try? JSONDecoder().decode(PendingLaunchAction.self, from: data) {
  defaults.removeObject(forKey: key)
  return action
  }
 
- if let envelope = try? JSONDecoder.decode(VersionedStoreEnvelope<PendingLaunchAction>.self, from: data),
+ if let envelope = try? JSONDecoder().decode(VersionedStoreEnvelope<PendingLaunchAction>.self, from: data),
  !envelope.header.isCompatible(with: contract) {
  return .none
  }

@@ -75,8 +75,8 @@ public struct CalendarCreateEventTool: RelayTool, Sendable {
  let appIntents = context.services.appIntents
 
  // Check and request permission if needed
- if !(await appIntents.hasCalendarAccess) {
- let granted = await appIntents.requestCalendarAccess
+ if !(await appIntents().hasCalendarAccess()) {
+ let granted = await appIntents().requestCalendarAccess()
  if !granted {
  return ToolResult(
  toolUseId: "",
@@ -97,7 +97,7 @@ public struct CalendarCreateEventTool: RelayTool, Sendable {
  )
 
  do {
- let result = try await appIntents.createCalendarEvent(eventInput)
+ let result = try await appIntents().createCalendarEvent(eventInput)
  let displayFormatter = DateFormatter()
  displayFormatter.dateStyle = .medium
  displayFormatter.timeStyle = .short

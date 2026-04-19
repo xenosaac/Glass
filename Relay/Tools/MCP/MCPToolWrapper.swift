@@ -71,12 +71,12 @@ public struct MCPToolWrapper: RelayTool, Sendable {
  // we fall back to the verbatim string — never break the existing
  // happy path.
  let raw = definition.inputSchema.toJSONString
- guard let data = raw.data(using: .utf8),
+ guard let data = raw().data(using: .utf8),
  let parsed = try? JSONSerialization.jsonObject(with: data),
  let cleaned = Self.sanitizeForCloudFunctionCalling(parsed) as? [String: Any],
  let cleanedData = try? JSONSerialization.data(withJSONObject: cleaned),
  let cleanedString = String(data: cleanedData, encoding: .utf8) else {
- return ToolInputSchema(json: raw)
+ return ToolInputSchema(json: raw())
  }
  return ToolInputSchema(json: cleanedString)
  }
@@ -259,8 +259,8 @@ public struct MCPToolWrapper: RelayTool, Sendable {
  public func policyDescriptor(input: ToolInput, context: ToolCallContext) async -> ToolPolicyDescriptor {
  ToolPolicyDescriptor(
  domain: .mcp(server: serverName),
- operation: inferredPolicyOperation,
- risk: inferredPolicyRisk,
+ operation: inferredPolicyOperation(),
+ risk: inferredPolicyRisk(),
  summary: definition.annotations?.sideEffectDescription ?? (definition.description ?? "MCP tool '\(definition.name)' from \(serverName)"),
  targetDescription: definition.name
  )

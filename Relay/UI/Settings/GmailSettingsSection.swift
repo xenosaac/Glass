@@ -40,7 +40,7 @@ struct GmailSettingsSection: View {
  SettingsMonochromeIcon(systemImage: "person.badge.plus")
  Text("Connect Gmail")
  .glassType(.bodyEmphasis)
- Spacer
+ Spacer()
  if isWorking {
  PixelStepIndicator(
  tint: Color.glassBorder,
@@ -59,7 +59,7 @@ struct GmailSettingsSection: View {
  Task { await disconnect }
  } label: {
  SettingsRowLabel(title: "Disconnect", systemImage: "person.badge.minus") {
- EmptyView
+ EmptyView()
  }
  .foregroundStyle(Color.glassError)
  }
@@ -89,10 +89,10 @@ struct GmailSettingsSection: View {
  SettingsSectionHeader(title: "About")
  }
  }
- .settingsListChrome
+ .settingsListChrome()
  .navigationTitle("Gmail")
  .navigationBarTitleDisplayMode(.large)
- .task { await refresh }
+ .task { await refresh() }
  }
 
  // MARK: - Status card
@@ -141,7 +141,7 @@ struct GmailSettingsSection: View {
  .glassType(.caption)
  .foregroundStyle(Color.glassTextMuted)
  }
- Spacer
+ Spacer()
  }
  }
  }
@@ -189,9 +189,9 @@ struct GmailSettingsSection: View {
  userEmail = nil
  return
  }
- isConfigured = await service.isConfigured
- isSignedIn = await service.isSignedIn
- userEmail = await service.currentUserEmail
+ isConfigured = await service.isConfigured()
+ isSignedIn = await service.isSignedIn()
+ userEmail = await service.currentUserEmail()
  }
 
  @MainActor
@@ -201,8 +201,8 @@ struct GmailSettingsSection: View {
  errorMessage = nil
  defer { isWorking = false }
  do {
- try await service.signIn
- await refresh
+ try await service.signIn()
+ await refresh()
  } catch GmailError.authCancelled {
  // Silent — user dismissed the auth sheet
  } catch {
@@ -215,7 +215,7 @@ struct GmailSettingsSection: View {
  guard let service = sharedServices.gmailService else { return }
  isWorking = true
  defer { isWorking = false }
- await service.signOut
- await refresh
+ await service.signOut()
+ await refresh()
  }
 }

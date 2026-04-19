@@ -10,10 +10,10 @@ private let _frameworkInitialized: Void = {
  if let bundleId = Bundle.main.bundleIdentifier {
  bundleId.withCString { cactus_set_app_id($0) }
  }
-}
+}()
 
 private func _err(_ msg: String) -> NSError {
- let e = cactusGetLastError
+ let e = cactusGetLastError()
  let desc = e.isEmpty ? msg : e
  return NSError(domain: "cactus", code: -1, userInfo: [NSLocalizedDescriptionKey: desc])
 }
@@ -27,7 +27,7 @@ private class TokenCallbackContext {
 
 private func tokenCallbackBridge(token: UnsafePointer<CChar>?, tokenId: UInt32, userData: UnsafeMutableRawPointer?) {
  guard let token = token, let userData = userData else { return }
- let context = Unmanaged<TokenCallbackContext>.fromOpaque(userData).takeUnretainedValue
+ let context = Unmanaged<TokenCallbackContext>.fromOpaque(userData).takeUnretainedValue()
  context.callback(String(cString: token), tokenId)
 }
 
@@ -36,7 +36,7 @@ private let _defaultBufferSize = 65536
 // MARK: - Telemetry
 
 public func cactusGetLastError() -> String {
- return String(cString: cactus_get_last_error)
+ return String(cString: cactus_get_last_error())
 }
 
 public func cactusSetTelemetryEnvironment(_ path: String) {
@@ -48,11 +48,11 @@ public func cactusSetAppId(_ appId: String) {
 }
 
 public func cactusTelemetryFlush() {
- cactus_telemetry_flush
+ cactus_telemetry_flush()
 }
 
 public func cactusTelemetryShutdown() {
- cactus_telemetry_shutdown
+ cactus_telemetry_shutdown()
 }
 
 // MARK: - Model lifecycle
@@ -83,7 +83,7 @@ public func cactusComplete(_ model: CactusModelT, _ messagesJson: String, _ opti
  var buffer = [CChar](repeating: 0, count: _defaultBufferSize)
 
  let callbackContext = onToken.map { TokenCallbackContext(callback: $0) }
- let contextPtr = callbackContext.map { Unmanaged.passUnretained($0).toOpaque }
+ let contextPtr = callbackContext.map { Unmanaged.passUnretained($0).toOpaque() }
 
  let result: Int32
  if let pcmData = pcmData {
@@ -216,7 +216,7 @@ public func cactusDetectLanguage(_ model: CactusModelT, _ audioPath: String?, _ 
 public func cactusTranscribe(_ model: CactusModelT, _ audioPath: String?, _ prompt: String?, _ optionsJson: String?, _ onToken: ((String, UInt32) -> Void)?, _ pcmData: Data?) throws -> String {
  var buffer = [CChar](repeating: 0, count: _defaultBufferSize)
  let callbackContext = onToken.map { TokenCallbackContext(callback: $0) }
- let contextPtr = callbackContext.map { Unmanaged.passUnretained($0).toOpaque }
+ let contextPtr = callbackContext.map { Unmanaged.passUnretained($0).toOpaque() }
 
  let result: Int32
  if let pcmData = pcmData {
@@ -523,7 +523,7 @@ public func cactusIndexAdd(_ index: CactusIndexT, _ ids: [Int32], _ documents: [
 
  docPtrs.forEach { free($0) }
  metaPtrs?.forEach { free($0) }
- embPtrs.forEach { if let p = $0 { UnsafeMutablePointer(mutating: p).deallocate } }
+ embPtrs.forEach { if let p = $0 { UnsafeMutablePointer(mutating: p).deallocate() } }
 
  if result < 0 { throw _err("Failed to add documents to index") }
 }
@@ -560,9 +560,9 @@ public func cactusIndexGet(_ index: CactusIndexT, _ ids: [Int32]) throws -> Stri
  return p
  }
  defer {
- docRaw.forEach { $0.deallocate }
- metaRaw.forEach { $0.deallocate }
- embRaw.forEach { $0.deallocate }
+ docRaw.forEach { $0.deallocate() }
+ metaRaw.forEach { $0.deallocate() }
+ embRaw.forEach { $0.deallocate() }
  }
 
  var docBuffers: [UnsafeMutablePointer<CChar>?] = docRaw.map { Optional($0) }
@@ -613,7 +613,7 @@ public func cactusIndexGet(_ index: CactusIndexT, _ ids: [Int32]) throws -> Stri
  "embedding": embedding,
  ]
  if metaStr.isEmpty {
- row["metadata"] = NSNull
+ row["metadata"] = NSNull()
  } else {
  row["metadata"] = metaStr
  }

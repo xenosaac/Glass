@@ -6,9 +6,9 @@ import Foundation
 /// Production usage injects real implementations as they become available:
 ///
 /// ```swift
-/// let files = FileProvider
-/// try await files.initialize
-/// let mcp = MCPToolProvider
+/// let files = FileProvider()
+/// try await files.initialize()
+/// let mcp = MCPToolProvider()
 /// let locator = DefaultServiceLocator(fileProvider: files, mcpProvider: mcp)
 /// let core = AgentCore(host: host, serviceLocator: locator)
 /// ```

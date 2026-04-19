@@ -111,7 +111,7 @@ internal enum ResponseObedienceValidator {
  ]
 
  private static func startsWithHelpDesk(_ text: String) -> Bool {
- let firstLine = text.split(separator: "\n", omittingEmptySubsequences: true).first.map(String.init()) ?? text
+ let firstLine = text.split(separator: "\n", omittingEmptySubsequences: true).first.map(String.init) ?? text
  let prefix = String(firstLine.prefix(80))
  return helpDeskOpeners.contains { prefix.contains($0) }
  }
@@ -184,7 +184,7 @@ internal enum ResponseObedienceValidator {
  ]
 
  private static func startsWithThirdPersonEcho(_ text: String) -> Bool {
- let firstLine = text.split(separator: "\n", omittingEmptySubsequences: true).first.map(String.init()) ?? text
+ let firstLine = text.split(separator: "\n", omittingEmptySubsequences: true).first.map(String.init) ?? text
  let prefix = String(firstLine.prefix(80))
  return thirdPersonEchoPrefixes.contains { prefix.contains($0) }
  }
@@ -293,7 +293,7 @@ internal enum ResponseObedienceValidator {
  fact.text
  .lowercased()
  .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
- .map(String.init())
+ .map(String.init)
  .filter { $0.count >= 3 && !factStopwords.contains($0) }
  }
  )

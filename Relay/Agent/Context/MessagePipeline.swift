@@ -59,7 +59,7 @@ public struct MessagePipeline: Sendable {
  let msg = messages[safeStart]
 
  // Collect tool_use IDs in proposed window
- var windowToolUseIds = Set<String>
+ var windowToolUseIds = Set<String>()
  for i in safeStart..<messages.count {
  if case .assistant(let content) = messages[i] {
  for block in content.blocks {
@@ -83,7 +83,7 @@ public struct MessagePipeline: Sendable {
  return nil
  }
  if !useIds.isEmpty {
- var windowResultIds = Set<String>
+ var windowResultIds = Set<String>()
  for i in safeStart..<messages.count {
  if case .toolResult(let r) = messages[i] {
  for res in r { windowResultIds.insert(res.toolUseId) }
@@ -148,7 +148,7 @@ public struct MessagePipeline: Sendable {
  return escaped
  }
  return nil
- }
+ }()
 
  guard let anchor = latestUserTextAnchor else { return messages }
 

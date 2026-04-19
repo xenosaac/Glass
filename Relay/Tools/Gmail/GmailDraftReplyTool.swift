@@ -43,7 +43,7 @@ public struct GmailDraftReplyTool: RelayTool, Sendable {
  }
 
  let gmail = context.services.gmail
- guard await gmail.isSignedIn else {
+ guard await gmail().isSignedIn() else {
  return ToolResult(
  toolUseId: "",
  output: "Error: Not signed in to Gmail. Connect your account in Settings → Gmail.",
@@ -52,7 +52,7 @@ public struct GmailDraftReplyTool: RelayTool, Sendable {
  }
 
  do {
- let draftId = try await gmail.createDraftReply(sourceMessageID: messageId, body: body)
+ let draftId = try await gmail().createDraftReply(sourceMessageID: messageId, body: body)
  return ToolResult(
  toolUseId: "",
  output: "Created draft reply (draft ID: \(draftId)). Review in Gmail's Drafts folder before sending."

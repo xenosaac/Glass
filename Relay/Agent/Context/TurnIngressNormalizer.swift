@@ -42,7 +42,7 @@ public struct TurnIngressNormalizer: Sendable {
  if let prebuilt = envelope.prebuiltMessage {
  let projected = Self.projectMessageForModel(prebuilt)
  return NormalizedTurn(
- turnID: UUID,
+ turnID: UUID(),
  transcriptMessage: prebuilt,
  modelMessage: projected
  )
@@ -63,7 +63,7 @@ public struct TurnIngressNormalizer: Sendable {
  )
 
  return NormalizedTurn(
- turnID: UUID,
+ turnID: UUID(),
  transcriptMessage: .user(UserContent(blocks: transcriptBlocks)),
  modelMessage: .user(UserContent(blocks: modelBlocks)),
  pendingFileIngestions: envelope.fileRefs

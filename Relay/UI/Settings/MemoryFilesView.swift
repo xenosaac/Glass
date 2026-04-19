@@ -111,16 +111,16 @@ struct MemoryFilesView: View {
  }
  .navigationTitle("Memory")
  .navigationBarTitleDisplayMode(.large)
- .settingsListChrome
- .task { await refresh }
- .refreshable { await refresh }
+ .settingsListChrome()
+ .task { await refresh() }
+ .refreshable { await refresh() }
  .confirmationDialog(
  "Clear all memory?",
  isPresented: $showClearConfirm,
  titleVisibility: .visible
  ) {
  Button("Delete everything", role: .destructive) {
- Task { await clearAll }
+ Task { await clearAll() }
  }
  Button("Cancel", role: .cancel) {}
  } message: {
@@ -134,7 +134,7 @@ struct MemoryFilesView: View {
  let index = await store.loadIndex(maxBytes: 4_000)
  indexPreview = index
  do {
- let names = try await store.listFiles
+ let names = try await store.listFiles()
  var rows: [FileRow] = []
  for name in names {
  let desc = try? await descriptionFromFrontmatter(path: name)
@@ -150,7 +150,7 @@ struct MemoryFilesView: View {
  let body = try await store.readFile(path)
  guard body.hasPrefix("---") else { return nil }
  let lines = body.split(separator: "\n", omittingEmptySubsequences: false)
- for line in lines.dropFirst {
+ for line in lines.dropFirst() {
  if line == "---" { break }
  if let range = line.range(of: "description:") {
  return line[range.upperBound...]
@@ -166,12 +166,12 @@ struct MemoryFilesView: View {
  for path in targets {
  try? await store.deleteFile(path)
  }
- await refresh
+ await refresh()
  }
  }
 
  private func clearAll() async {
- try? await store.clearAll
- await refresh
+ try? await store.clearAll()
+ await refresh()
  }
 }

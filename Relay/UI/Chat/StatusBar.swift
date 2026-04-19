@@ -6,7 +6,7 @@ struct StatusBar: View {
 
  var body: some View {
  if case .idle = status {
- EmptyView
+ EmptyView()
  } else {
  HStack(spacing: GlassSpacing.s) {
  statusView
@@ -25,7 +25,7 @@ struct StatusBar: View {
  private var statusView: some View {
  switch status {
  case .idle:
- EmptyView
+ EmptyView()
  case .thinking:
  progressLabel("Thinking", color: Color.glassTextMuted)
  case .callingTool(let name):
@@ -67,7 +67,7 @@ struct StatusBar: View {
 
  private func displayName(for toolName: String) -> String {
  let pretty = toolName.split(separator: "_")
- .map { $0.capitalized() }
+ .map { $0.capitalized }
  .joined(separator: " ")
  return "Calling \(pretty)"
  }

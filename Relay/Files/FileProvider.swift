@@ -5,8 +5,8 @@ import CoreSpotlight
 ///
 /// Usage:
 /// ```swift
-/// let provider = FileProvider
-/// try await provider.initialize
+/// let provider = FileProvider()
+/// try await provider.initialize()
 /// // Now ready to read/write files in authorized folders
 /// ```
 public actor FileProvider: FileProviderService {
@@ -19,10 +19,10 @@ public actor FileProvider: FileProviderService {
 
  /// Load saved bookmarks and activate their security scopes.
  public func initialize() async throws {
- try await bookmarkStore.loadAll
- for path in await bookmarkStore.allPaths {
+ try await bookmarkStore.loadAll()
+ for path in await bookmarkStore.allPaths() {
  if let url = await bookmarkStore.resolve(path: path) {
- if url.startAccessingSecurityScopedResource {
+ if url.startAccessingSecurityScopedResource() {
  activeScopes[path] = url
  }
  }
@@ -34,7 +34,7 @@ public actor FileProvider: FileProviderService {
  deinit {
  // Best-effort cleanup; prefer explicit shutdown call
  for url in activeScopes.values {
- url.stopAccessingSecurityScopedResource
+ url.stopAccessingSecurityScopedResource()
  }
  }
 
@@ -42,9 +42,9 @@ public actor FileProvider: FileProviderService {
  /// Call this when the provider is no longer needed (e.g., app backgrounding).
  public func shutdown() {
  for url in activeScopes.values {
- url.stopAccessingSecurityScopedResource
+ url.stopAccessingSecurityScopedResource()
  }
- activeScopes.removeAll
+ activeScopes.removeAll()
  }
 
  // MARK: - FileProviderService
@@ -88,8 +88,8 @@ public actor FileProvider: FileProviderService {
  }
  let url = URL(fileURLWithPath: path)
  if createIntermediates {
- let parent = url.deletingLastPathComponent
- try FileManager.default.createDirectory(at: parent(), withIntermediateDirectories: true)
+ let parent = url.deletingLastPathComponent()
+ try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
  }
  do {
  try data.write(to: url, options: .atomic)
@@ -185,7 +185,7 @@ public actor FileProvider: FileProviderService {
  }
  }
 
- searchQuery.start
+ searchQuery.start()
  }
  }
 

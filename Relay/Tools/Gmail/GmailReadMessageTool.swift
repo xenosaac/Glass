@@ -34,7 +34,7 @@ public struct GmailReadMessageTool: RelayTool, Sendable {
  }
 
  let gmail = context.services.gmail
- guard await gmail.isSignedIn else {
+ guard await gmail().isSignedIn() else {
  return ToolResult(
  toolUseId: "",
  output: "Error: Not signed in to Gmail. Connect your account in Settings → Gmail.",
@@ -43,7 +43,7 @@ public struct GmailReadMessageTool: RelayTool, Sendable {
  }
 
  do {
- let m = try await gmail.messageFull(id: messageId)
+ let m = try await gmail().messageFull(id: messageId)
  var lines = [
  "Message \(m.id) (thread \(m.threadId))",
  "From: \(m.from)",

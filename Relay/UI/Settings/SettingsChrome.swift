@@ -75,8 +75,8 @@ struct SettingsTopActionBar<Leading: View, Trailing: View>: View {
  @ViewBuilder leading:  () -> Leading,
  @ViewBuilder trailing:  () -> Trailing
  ) {
- self.leading = leading
- self.trailing = trailing
+ self.leading = leading()
+ self.trailing = trailing()
  }
 
  var body: some View {
@@ -169,6 +169,6 @@ private struct SettingsListChrome: ViewModifier {
 
 extension View {
  func settingsListChrome() -> some View {
- modifier(SettingsListChrome)
+ modifier(SettingsListChrome())
  }
 }

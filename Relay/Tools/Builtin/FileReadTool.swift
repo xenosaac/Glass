@@ -215,7 +215,7 @@ public struct FileReadTool: RelayTool, Sendable {
  static func expandPath(_ path: String) -> String {
  var p = path.trimmingCharacters(in: .whitespacesAndNewlines)
  if p.hasPrefix("~") {
- p = NSHomeDirectory + String(p.dropFirst)
+ p = NSHomeDirectory() + String(p.dropFirst())
  }
  return p.replacingOccurrences(of: "\\", with: "/")
  }

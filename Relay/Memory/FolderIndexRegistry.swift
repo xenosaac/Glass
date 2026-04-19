@@ -60,20 +60,20 @@ public actor FolderIndexRegistry {
  }
 
  entries[path] = Entry(path: path, state: .indexing(startedAt: Date()))
- save
+ save()
  return true
  }
 
  /// Transition from `.indexing` to `.indexed`.
  public func finishIndexing(_ path: String, count: Int) {
  entries[path] = Entry(path: path, state: .indexed(indexedAt: Date(), documentCount: count))
- save
+ save()
  }
 
  /// Transition from `.indexing` back to `.notIndexed` (on failure).
  public func failIndexing(_ path: String) {
  entries[path] = Entry(path: path, state: .notIndexed)
- save
+ save()
  }
 
  // MARK: - Persistence
@@ -95,7 +95,7 @@ public actor FolderIndexRegistry {
 
  if let legacy = try? decoder.decode([Entry].self, from: data) {
  entries = Dictionary(legacy.map { ($0.path, $0) }, uniquingKeysWith: { $1 })
- save
+ save()
  return
  }
 

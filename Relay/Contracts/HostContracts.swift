@@ -114,7 +114,7 @@ internal struct CompletionSnapshot: Sendable, Codable, Equatable {
  internal init(result: CactusModelHost.CompletionResult) {
  self.init(
  text: result.text,
- toolCalls: result.toolUses.map(ParsedToolCall.init()),
+ toolCalls: result.toolUses.map(ParsedToolCall.init),
  confidence: result.confidence,
  cloudHandoff: result.cloudHandoff,
  prefillTPS: result.prefillTPS,
@@ -128,7 +128,7 @@ internal struct CompletionSnapshot: Sendable, Codable, Equatable {
  internal func asCompletionResult() -> CactusModelHost.CompletionResult {
  CactusModelHost.CompletionResult(
  text: text,
- toolUses: toolCalls.map { $0.asToolUseBlock },
+ toolUses: toolCalls.map { $0.asToolUseBlock() },
  confidence: confidence,
  cloudHandoff: cloudHandoff,
  prefillTPS: prefillTPS,
@@ -231,7 +231,7 @@ public struct RecoveryState: Sendable, Codable, Equatable {
  self.recoveryAttemptCountLastTurn = recoveryAttemptCountLastTurn
  }
 
- public static var empty: RecoveryState { RecoveryState }
+ public static var empty: RecoveryState { RecoveryState() }
 
  public func beganTurn() -> RecoveryState {
  RecoveryState(

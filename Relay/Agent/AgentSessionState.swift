@@ -156,7 +156,7 @@ public struct SessionSummaryState: Sendable, Equatable {
  self.latestBoundaryMessageIndex = latestBoundaryMessageIndex
  }
 
- public static var empty: SessionSummaryState { SessionSummaryState }
+ public static var empty: SessionSummaryState { SessionSummaryState() }
 }
 
 public struct RecentToolState: Sendable, Equatable {
@@ -174,7 +174,7 @@ public struct RecentToolState: Sendable, Equatable {
  self.lastCompletedAtTurnCount = lastCompletedAtTurnCount
  }
 
- public static var empty: RecentToolState { RecentToolState }
+ public static var empty: RecentToolState { RecentToolState() }
 }
 
 public struct ToolUseSnapshot: Sendable, Equatable {
@@ -226,7 +226,7 @@ public struct PendingApprovalState: Sendable, Equatable {
  self.lastResolution = lastResolution
  }
 
- public static var empty: PendingApprovalState { PendingApprovalState }
+ public static var empty: PendingApprovalState { PendingApprovalState() }
 }
 
 public struct PendingApprovalRequest: Sendable, Equatable {
@@ -280,7 +280,7 @@ public struct RetrievalState: Sendable, Equatable {
  self.lastPlannedAtTurnCount = lastPlannedAtTurnCount
  }
 
- public static var empty: RetrievalState { RetrievalState }
+ public static var empty: RetrievalState { RetrievalState() }
 
  public static func planned(
  query: String?,

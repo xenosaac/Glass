@@ -171,8 +171,8 @@ private struct ContextBindingCompiler: Sendable {
  }
  let slice = Array(messages[firstVisibleFactIndex..<lastUserIndex])
  let relevantTerms = analysis.salientTerms.union(
- visibleFacts.reduce(into: Set<String>) { acc, fact in
- acc().formUnion(TurnClassifier.salientTerms(in: fact.text))
+ visibleFacts.reduce(into: Set<String>()) { acc, fact in
+ acc.formUnion(TurnClassifier.salientTerms(in: fact.text))
  }
  )
  let turns = conversationalTurns(from: slice).filter { turn in
@@ -541,7 +541,7 @@ public struct ContextBuilder: Sendable {
 
  internal func compilePrompt(_ input: PromptAssemblyInput) -> PromptAssembly {
  let compiler = PromptCompiler()
- return compiler().compile(input)
+ return compiler.compile(input)
  }
 
  internal func currentTurnFocusForTesting(from messages: [RelayMessage]) -> String? {
@@ -549,8 +549,8 @@ public struct ContextBuilder: Sendable {
  let turnOverlay = ContextBindingCompiler().compile(
  messages: messages,
  state: AgentSessionState.hydrated(from: messages),
- analysis: classifier().analyze(messages: messages),
- classifier: classifier(),
+ analysis: classifier.analyze(messages: messages),
+ classifier: classifier,
  retrievalDecision: RetrievalDecision(query: nil, artifacts: [])
  )
  return FocusSectionRenderer().render(turnOverlay)
@@ -561,8 +561,8 @@ public struct ContextBuilder: Sendable {
  return ContextBindingCompiler().compile(
  messages: messages,
  state: AgentSessionState.hydrated(from: messages),
- analysis: classifier().analyze(messages: messages),
- classifier: classifier(),
+ analysis: classifier.analyze(messages: messages),
+ classifier: classifier,
  retrievalDecision: RetrievalDecision(query: nil, artifacts: [])
  )
  }
@@ -638,7 +638,7 @@ public struct ContextBuilder: Sendable {
  let (pipelined, wasTruncated) = pipeline.transform(reducedMessages)
 
  let classifier = TurnClassifier()
- let analysis = classifier().analyze(messages: pipelined)
+ let analysis = classifier.analyze(messages: pipelined)
  let plannedRetrievalDecision = await retrievalPlanner.plan(
  analysis: analysis,
  memoryStore: memoryStore,
@@ -650,7 +650,7 @@ public struct ContextBuilder: Sendable {
  messages: pipelined,
  state: state,
  analysis: analysis,
- classifier: classifier(),
+ classifier: classifier,
  retrievalDecision: plannedRetrievalDecision
  )
  let finalMessages = injectContextArtifacts(
@@ -665,7 +665,7 @@ public struct ContextBuilder: Sendable {
  query: plannedRetrievalDecision.query,
  artifacts: turnOverlay?.retrievalArtifacts ?? []
  )
- let currentTurnFocus = FocusSectionRenderer.render(turnOverlay)
+ let currentTurnFocus = FocusSectionRenderer().render(turnOverlay)
  // build the per-tool description map from
  // the catalog so SystemPrompt.toolsSection can render selection
  // cues the way CC does in `prompts.ts:269-314`. `entry.title` is

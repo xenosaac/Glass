@@ -158,7 +158,7 @@ public actor CactusModelHost {
  }
  }
  // Stop propagation chain:
- // outer consumer drops → onTermination fires → Swift task.cancel
+ // outer consumer drops → onTermination fires → Swift task.cancel()
  // unwinds the awaited-for-loop in runStream, AND we call
  // cactus_stop on the native handle so the blocking C call
  // inside cactusComplete unblocks immediately. Without the
@@ -167,8 +167,8 @@ public actor CactusModelHost {
  // given up — visible to the user as the bubble clearing but
  // Gemma still burning battery.
  continuation.onTermination = { _ in
- task.cancel
- Task { await self.requestStopGeneration }
+ task.cancel()
+ Task { await self.requestStopGeneration() }
  }
  }
  }
@@ -482,7 +482,7 @@ public actor CactusModelHost {
  _ messages: [RelayMessage]
  ) -> (messages: [RelayMessage], hadRepairs: Bool) {
  var repaired: [RelayMessage] = []
- var seenToolUseIds = Set<String>
+ var seenToolUseIds = Set<String>()
  var madeRepair = false
 
  var i = 0
@@ -591,7 +591,7 @@ public actor CactusModelHost {
  var out: [[String: Any]] = []
  for tool in tools {
  let schemaData = tool.inputSchema.json.data(using: .utf8) ?? Data("{}".utf8)
- let schemaObject = (try? JSONSerialization.jsonObject(with: schemaData)) ?? [String: Any]
+ let schemaObject = (try? JSONSerialization.jsonObject(with: schemaData)) ?? [String: Any]()
  out.append([
  "name": tool.name,
  "description": tool.description,
@@ -676,7 +676,7 @@ public actor CactusModelHost {
  argsJson = "{}"
  }
  toolUses.append(ToolUseBlock(
- id: UUID.uuidString,
+ id: UUID().uuidString,
  name: name,
  inputJson: argsJson
  ))

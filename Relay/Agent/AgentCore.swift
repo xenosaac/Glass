@@ -85,10 +85,10 @@ public actor AgentCore {
 
  public init(
  host: CactusModelHost,
- registry: ToolRegistry = ToolRegistry,
- config: Config = Config,
- approvalBroker: any ApprovalBroker = DefaultApprovalBroker,
- serviceLocator: any ServiceLocator = DefaultServiceLocator,
+ registry: ToolRegistry = ToolRegistry(),
+ config: Config = Config(),
+ approvalBroker: any ApprovalBroker = DefaultApprovalBroker(),
+ serviceLocator: any ServiceLocator = DefaultServiceLocator(),
  workspaceURL: URL? = nil,
  transcriptSessionId: String = UUID().uuidString,
  onConfirmationNeeded: (@Sendable (_ toolUseId: String, _ toolName: String, _ prompt: String) async -> Bool)? = nil
@@ -108,10 +108,10 @@ public actor AgentCore {
 
  internal init(
  host: CactusModelHost,
- registry: ToolRegistry = ToolRegistry,
- config: Config = Config,
- approvalBroker: any ApprovalBroker = DefaultApprovalBroker,
- serviceLocator: any ServiceLocator = DefaultServiceLocator,
+ registry: ToolRegistry = ToolRegistry(),
+ config: Config = Config(),
+ approvalBroker: any ApprovalBroker = DefaultApprovalBroker(),
+ serviceLocator: any ServiceLocator = DefaultServiceLocator(),
  functionGemmaRuntime: SharedFunctionGemmaRuntime? = nil,
  workspaceURL: URL? = nil,
  transcriptSessionId: String = UUID().uuidString,
@@ -124,9 +124,9 @@ public actor AgentCore {
  self.serviceLocator = serviceLocator
  self.functionGemmaRuntime = functionGemmaRuntime
  self.onConfirmationNeeded = onConfirmationNeeded
- self.runner = AgentRunner
+ self.runner = AgentRunner()
  self.normalizer = TurnIngressNormalizer(sessionId: transcriptSessionId)
- self.session = AgentSession(id: UUID.uuidString, startedAt: Date, workspaceURL: workspaceURL)
+ self.session = AgentSession(id: UUID().uuidString, startedAt: Date(), workspaceURL: workspaceURL)
  }
 
  /// Per-attempt Gemini client for the cloud-fallback path. Reads the
@@ -189,7 +189,7 @@ public actor AgentCore {
  guard let store = config.attachmentStore else {
  throw AgentCoreError.attachmentStoreNotConfigured
  }
- let attachment = try AttachmentIndexer.ingest(
+ let attachment = try AttachmentIndexer().ingest(
  fileURL: url,
  displayName: displayName,
  attachmentID: attachmentID
@@ -275,7 +275,7 @@ public actor AgentCore {
  continuation.finish(throwing: error)
  }
  }
- continuation.onTermination = { _ in task.cancel }
+ continuation.onTermination = { _ in task.cancel() }
  }
  }
 
@@ -295,7 +295,7 @@ public actor AgentCore {
  continuation.finish(throwing: error)
  }
  }
- continuation.onTermination = { _ in task.cancel }
+ continuation.onTermination = { _ in task.cancel() }
  }
  }
 
@@ -361,12 +361,10 @@ public actor AgentCore {
  }
 
  // Gather tools once per turn (tools don't change mid-turn).
- let requestedAtTurnCount = state.turnCount + (
- {
+ let requestedAtTurnCount = state.turnCount + ({
  if case .user(let content) = acceptedUserMessage, !content.isMeta { return 1 }
  return 0
- }
- )
+ }())
  let confirmationHandler: (@Sendable (_ toolUseId: String, _ toolName: String, _ prompt: String) async -> Bool)?
  if let onConfirmationNeeded {
  confirmationHandler = { [weak self] toolUseId, toolName, prompt in
@@ -397,14 +395,14 @@ public actor AgentCore {
  memoryStore: config.memoryStore,
  attachmentStore: config.attachmentStore,
  workspaceURL: session.workspaceURL,
- fileProvider: serviceLocator.fileProvider
+ fileProvider: serviceLocator.fileProvider()
  )
 
  // Resolve cloud client at turn start (matches the prior
  // `currentGeminiClient` semantic: mid-turn key changes apply
  // to the next turn, not this one).
  let onDeviceAdapter = CactusOnDeviceHostAdapter(host: host)
- let cloudAdapter = currentGeminiClient.map { GeminiCloudHostAdapter(client: $0) }
+ let cloudAdapter = currentGeminiClient().map { GeminiCloudHostAdapter(client: $0) }
  let toolSpecialistAdapter = functionGemmaRuntime.map { FunctionGemmaToolHostAdapter(runtime: $0) }
 
  // Capture non-isolated dependencies so the tool-context factory
@@ -471,7 +469,7 @@ public actor AgentCore {
  guard TurnIngressNormalizer.supportsFileType(file.contentTypeIdentifier) else {
  throw TurnIngressError.unsupportedFileType(file.displayName)
  }
- return try AttachmentIndexer.ingest(
+ return try AttachmentIndexer().ingest(
  fileURL: file.sourceURL,
  displayName: file.displayName,
  attachmentID: file.attachmentID

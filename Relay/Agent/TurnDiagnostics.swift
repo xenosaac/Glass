@@ -41,7 +41,7 @@ internal struct AttemptCompletionSnapshot: Sendable, Codable {
  internal init(snapshot: CompletionSnapshot) {
  self.init(
  text: snapshot.text,
- toolUses: snapshot.toolCalls.map { $0.asToolUseBlock },
+ toolUses: snapshot.toolCalls.map { $0.asToolUseBlock() },
  cloudHandoff: snapshot.cloudHandoff
  )
  }

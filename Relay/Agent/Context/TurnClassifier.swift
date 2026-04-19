@@ -479,7 +479,7 @@ internal struct TurnClassifier: Sendable {
  Set(
  text.lowercased()
  .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
- .map(String.init())
+ .map(String.init)
  .filter { $0.count >= 3 }
  .filter { !salientStopwords.contains($0) }
  )
@@ -501,7 +501,7 @@ internal struct TurnClassifier: Sendable {
  /// requires a verb match AND a noun match from the lists below.
  internal static func isToolIntent(latestUserText: String) -> Bool {
  let normalized = normalizedComparisonText(latestUserText)
- let words = Set(normalized.split(separator: " ").map(String.init()))
+ let words = Set(normalized.split(separator: " ").map(String.init))
 
  // fast path for time/date queries.
  // S2 T21 device log: `What time is it?` produced text-only
@@ -662,7 +662,7 @@ internal struct TurnClassifier: Sendable {
  latestUserText: String
  ) -> Bool {
  let normalized = normalizedComparisonText(latestUserText)
- let words = Set(normalized.split(separator: " ").map(String.init()))
+ let words = Set(normalized.split(separator: " ").map(String.init))
 
  // Fast path: explicit recall phrases whose NP already binds
  // conversation-scope. No verb-match required — the phrase is

@@ -20,18 +20,18 @@ internal actor SharedFunctionGemmaRuntime {
  let startedAt = CFAbsoluteTimeGetCurrent()
  print("[FUNC_PREWARM] start trigger=\(trigger)")
  do {
- guard let prepared = try await AppPaths.prepareFunctionGemmaForLoad else {
+ guard let prepared = try await AppPaths.prepareFunctionGemmaForLoad() else {
  recordFailure("FunctionGemma-270M is missing from the app bundle or Documents fallback.")
  return nil
  }
- let modelPath = prepared().url.path
+ let modelPath = prepared.url.path
  let prepareMs = (CFAbsoluteTimeGetCurrent() - startedAt) * 1000
  #if DEBUG
  print("MODEL_RESOLVE functiongemma source=\(prepared.source.rawValue) path=\(modelPath)")
  #endif
  let host = CactusModelHost(modelPath: modelPath)
  let loadStartedAt = CFAbsoluteTimeGetCurrent()
- try await host.load
+ try await host.load()
  let loadMs = (CFAbsoluteTimeGetCurrent() - loadStartedAt) * 1000
  setLoadedHost(host)
  print(

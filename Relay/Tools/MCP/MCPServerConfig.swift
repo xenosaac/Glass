@@ -130,7 +130,7 @@ public struct MCPServerConfig: Codable, Sendable, Identifiable, Equatable {
 /// Stores configurations in a file-backed envelope. Legacy UserDefaults data
 /// is imported once on first load when no file-backed store exists yet.
 public actor MCPConfigStore {
- public static let shared = MCPConfigStore
+ public static let shared = MCPConfigStore()
 
  private let fileURL: URL
  private let legacyDefaults: UserDefaults
@@ -155,28 +155,28 @@ public actor MCPConfigStore {
  public func allServers() -> [MCPServerConfig] {
  if let cached = cache { return cached }
  let loaded = load
- cache = loaded
- return loaded
+ cache = loaded()
+ return loaded()
  }
 
  /// Get only enabled servers.
  public func enabledServers() -> [MCPServerConfig] {
- allServers.filter { $0.isEnabled }
+ allServers().filter { $0.isEnabled }
  }
 
  /// Get a server by ID.
  public func server(id: String) -> MCPServerConfig? {
- allServers.first { $0.id == id }
+ allServers().first { $0.id == id }
  }
 
  /// Get a server by name.
  public func server(named name: String) -> MCPServerConfig? {
- allServers.first { $0.name == name }
+ allServers().first { $0.name == name }
  }
 
  /// Add a new server configuration.
  public func add(_ config: MCPServerConfig) {
- var servers = allServers
+ var servers = allServers()
  // Replace if exists, otherwise append
  if let idx = servers.firstIndex(where: { $0.id == config.id }) {
  servers[idx] = config
@@ -188,14 +188,14 @@ public actor MCPConfigStore {
 
  /// Remove a server by ID.
  public func remove(id: String) {
- var servers = allServers
+ var servers = allServers()
  servers.removeAll { $0.id == id }
  save(servers)
  }
 
  /// Enable or disable a server.
  public func setEnabled(_ enabled: Bool, id: String) {
- var servers = allServers
+ var servers = allServers()
  if let idx = servers.firstIndex(where: { $0.id == id }) {
  servers[idx].isEnabled = enabled
  save(servers)

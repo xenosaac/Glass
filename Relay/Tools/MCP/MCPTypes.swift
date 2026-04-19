@@ -208,7 +208,7 @@ public enum AnyCodable: Codable, Sendable {
  public var value: Any {
  switch self {
  case .null:
- return NSNull
+ return NSNull()
  case .bool(let bool):
  return bool
  case .int(let int):
@@ -237,13 +237,13 @@ public enum AnyCodable: Codable, Sendable {
  case let string as String:
  self = .string(string)
  case let array as [Any]:
- self = .array(array.map(AnyCodable.init()))
+ self = .array(array.map(AnyCodable.init))
  case let dict as [String: Any]:
- self = .dictionary(dict.mapValues(AnyCodable.init()))
+ self = .dictionary(dict.mapValues(AnyCodable.init))
  case let float as Float:
  self = .double(Double(float))
  case let number as NSNumber:
- if CFGetTypeID(number) == CFBooleanGetTypeID {
+ if CFGetTypeID(number) == CFBooleanGetTypeID() {
  self = .bool(number.boolValue)
  } else if number.doubleValue.rounded(.towardZero) == number.doubleValue {
  self = .int(number.intValue)
@@ -256,9 +256,9 @@ public enum AnyCodable: Codable, Sendable {
  }
 
  public init(from decoder: Decoder) throws {
- let container = try decoder.singleValueContainer
+ let container = try decoder.singleValueContainer()
 
- if container.decodeNil {
+ if container.decodeNil() {
  self = .null
  } else if let bool = try? container.decode(Bool.self) {
  self = .bool(bool)
@@ -278,11 +278,11 @@ public enum AnyCodable: Codable, Sendable {
  }
 
  public func encode(to encoder: Encoder) throws {
- var container = encoder.singleValueContainer
+ var container = encoder.singleValueContainer()
 
  switch self {
  case .null:
- try container.encodeNil
+ try container.encodeNil()
  case .bool(let bool):
  try container.encode(bool)
  case .int(let int):

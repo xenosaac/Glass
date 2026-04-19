@@ -205,7 +205,7 @@ public struct ToolDispatcher: Sendable {
  outputPreview: "Permission denied: \(reason)",
  source: .other
  ),
- approval: normalizer().decisionRecord(
+ approval: normalizer.decisionRecord(
  for: tool,
  outcome: .brokerDenied,
  reason: reason,
@@ -249,7 +249,7 @@ public struct ToolDispatcher: Sendable {
  outputPreview: "User denied: \(request.prompt)",
  source: .other
  ),
- approval: normalizer().decisionRecord(
+ approval: normalizer.decisionRecord(
  for: tool,
  outcome: .userDenied,
  reason: request.prompt,
@@ -276,7 +276,7 @@ public struct ToolDispatcher: Sendable {
  outputPreview: "Confirmation required: \(request.prompt). No confirmation handler available.",
  source: .other
  ),
- approval: normalizer().decisionRecord(
+ approval: normalizer.decisionRecord(
  for: tool,
  outcome: .deferredNoHandler,
  reason: request.prompt,
@@ -341,7 +341,7 @@ public struct ToolDispatcher: Sendable {
  outputPreview: "Validation failed: \(validationError.userFacingMessage)",
  source: .other
  ),
- approval: normalizer().decisionRecord(
+ approval: normalizer.decisionRecord(
  for: tool,
  outcome: approvalOutcome,
  reason: approvalReason,
@@ -386,7 +386,7 @@ public struct ToolDispatcher: Sendable {
  outputPreview: result.output,
  source: .other
  ),
- approval: normalizer().decisionRecord(
+ approval: normalizer.decisionRecord(
  for: tool,
  outcome: approvalOutcome,
  reason: approvalReason,
@@ -406,7 +406,7 @@ public struct ToolDispatcher: Sendable {
  outputPreview: "Tool error: \(error.localizedDescription)",
  source: .other
  ),
- approval: normalizer().decisionRecord(
+ approval: normalizer.decisionRecord(
  for: tool,
  outcome: approvalOutcome,
  reason: approvalReason,

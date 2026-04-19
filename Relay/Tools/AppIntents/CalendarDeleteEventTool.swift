@@ -33,8 +33,8 @@ public struct CalendarDeleteEventTool: RelayTool, Sendable {
 
  let appIntents = context.services.appIntents
 
- if !(await appIntents.hasCalendarAccess) {
- let granted = await appIntents.requestCalendarAccess
+ if !(await appIntents().hasCalendarAccess()) {
+ let granted = await appIntents().requestCalendarAccess()
  if !granted {
  return ToolResult(
  toolUseId: "",
@@ -45,7 +45,7 @@ public struct CalendarDeleteEventTool: RelayTool, Sendable {
  }
 
  do {
- try await appIntents.deleteCalendarEvent(id: eventId)
+ try await appIntents().deleteCalendarEvent(id: eventId)
  return ToolResult(toolUseId: "", output: "Deleted event with ID: \(eventId)")
  } catch {
  return ToolResult(toolUseId: "", output: "Error: \(error.localizedDescription)", isError: true)

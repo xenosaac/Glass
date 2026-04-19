@@ -44,7 +44,7 @@ public enum ToolInputValidator {
  guard let schemaObj = try? JSONSerialization.jsonObject(
  with: Data(schema.json.utf8)
  ) as? [String: Any] else {
- return .success()
+ return .success(())
  }
 
  if let required = schemaObj["required"] as? [String] {
@@ -52,6 +52,6 @@ public enum ToolInputValidator {
  return .failure(.missingRequiredField(field))
  }
  }
- return .success()
+ return .success(())
  }
 }

@@ -9,7 +9,7 @@ struct RetroCutShape: InsettableShape {
  let insetRect = rect.insetBy(dx: insetAmount, dy: insetAmount)
  let cut = max(3, min(self.cut, min(insetRect.width, insetRect.height) * 0.22))
 
- var path = Path
+ var path = Path()
  path.move(to: CGPoint(x: insetRect.minX + cut, y: insetRect.minY))
  path.addLine(to: CGPoint(x: insetRect.maxX - cut, y: insetRect.minY))
  path.addLine(to: CGPoint(x: insetRect.maxX, y: insetRect.minY + cut))
@@ -18,7 +18,7 @@ struct RetroCutShape: InsettableShape {
  path.addLine(to: CGPoint(x: insetRect.minX + cut, y: insetRect.maxY))
  path.addLine(to: CGPoint(x: insetRect.minX, y: insetRect.maxY - cut))
  path.addLine(to: CGPoint(x: insetRect.minX, y: insetRect.minY + cut))
- path.closeSubpath
+ path.closeSubpath()
  return path
  }
 

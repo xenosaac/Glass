@@ -15,7 +15,7 @@ struct MessageActions: View {
  withAnimation(.easeOut(duration: 0.15)) {
  copied = true
  }
- DispatchQueue.main.asyncAfter(deadline: .now + 1.5) {
+ DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
  withAnimation(.easeOut(duration: 0.15)) {
  copied = false
  }
@@ -40,7 +40,7 @@ struct MessageActions: View {
  .buttonStyle(.relayGlass(.iconSecondary))
  .accessibilityLabel("Share")
 
- Spacer
+ Spacer()
  }
  }
 
@@ -62,5 +62,5 @@ struct MessageActions: View {
  .glassType(.body)
  MessageActions(text: "Here's your answer...")
  }
- .padding
+ .padding()
 }

@@ -35,14 +35,14 @@ struct SettingsView: View {
  GmailSettingsSection(sharedServices: sharedServices)
  } label: {
  connectionRow(title: "Gmail", systemImage: "envelope") {
- EmptyView
+ EmptyView()
  }
  }
  NavigationLink {
- CloudFallbackSection
+ CloudFallbackSection()
  } label: {
  connectionRow(title: "Cloud Fallback", systemImage: "cloud") {
- EmptyView
+ EmptyView()
  }
  }
  } header: {
@@ -56,7 +56,7 @@ struct SettingsView: View {
  Text(url.lastPathComponent)
  .glassType(.bodyEmphasis)
  .foregroundStyle(Color.glassText)
- Spacer
+ Spacer()
  Text(url.path)
  .glassType(.caption)
  .foregroundStyle(Color.glassTextMuted)
@@ -72,7 +72,7 @@ struct SettingsView: View {
  showingFolderPicker = true
  } label: {
  SettingsRowLabel(title: "Add Folder", systemImage: "plus") {
- EmptyView
+ EmptyView()
  }
  }
  .buttonStyle(.relaySurfaceFeedback)
@@ -85,10 +85,10 @@ struct SettingsView: View {
 
  Section {
  NavigationLink {
- MemoryFilesView(store: sharedServices.memoryStore ?? MemoryStore)
+ MemoryFilesView(store: sharedServices.memoryStore ?? MemoryStore())
  } label: {
  SettingsRowLabel(title: "Memory", systemImage: "brain") {
- EmptyView
+ EmptyView()
  }
  }
  } header: {
@@ -101,14 +101,14 @@ struct SettingsView: View {
  Text("Theme")
  .glassType(.bodyEmphasis)
  .foregroundStyle(Color.glassText)
- Spacer
+ Spacer()
  Picker("Theme", selection: $themeMode) {
  ForEach(ThemeMode.allCases) { mode in
  Text(mode.label).tag(mode)
  }
  }
  .pickerStyle(.menu)
- .labelsHidden
+ .labelsHidden()
  }
  .padding(.horizontal, GlassSpacing.l)
  .padding(.vertical, 14)
@@ -158,12 +158,12 @@ struct SettingsView: View {
  .glassType(.caption)
  }
  }
- .settingsListChrome
+ .settingsListChrome()
  .navigationTitle("Settings")
  .navigationBarTitleDisplayMode(.large)
  .safeAreaInset(edge: .top, spacing: 0) {
  SettingsTopActionBar {
- EmptyView
+ EmptyView()
  } trailing: {
  Button("Done") {
  dismiss
@@ -178,15 +178,15 @@ struct SettingsView: View {
  if let fp = sharedServices.fileProvider {
  try? await fp.addAuthorization(url: url)
  }
- await loadFolders
+ await loadFolders()
  }
  } onCancel: {
  showingFolderPicker = false
  }
  }
  .task {
- await loadFolders
- await refreshConnectionState
+ await loadFolders()
+ await refreshConnectionState()
  }
  .onChange(of: themeMode) { _, newMode in
  ThemeManager.shared.mode = newMode
@@ -206,7 +206,7 @@ struct SettingsView: View {
  @ViewBuilder trailing:  () -> Trailing
  ) -> some View {
  SettingsRowLabel(title: title, systemImage: systemImage) {
- trailing
+ trailing()
  }
  }
 
@@ -216,7 +216,7 @@ struct SettingsView: View {
  Text(title)
  .glassType(.bodyEmphasis)
  .foregroundStyle(Color.glassText)
- Spacer
+ Spacer()
  Text(value)
  .glassType(.body)
  .foregroundStyle(Color.glassTextMuted)
@@ -227,22 +227,22 @@ struct SettingsView: View {
  }
 
  private func refreshConnectionState() async {
- mcpServerCount = await MCPConfigStore.shared.enabledServers.count
+ mcpServerCount = await MCPConfigStore.shared.enabledServers().count
  }
 
  private func loadFolders() async {
  // Load from BookmarkStore
- let store = BookmarkStore
- try? await store.loadAll
- authorizedFolders = await store.allResolved
+ let store = BookmarkStore()
+ try? await store.loadAll()
+ authorizedFolders = await store.allResolved()
  }
 
  private func removeFolder(at offsets: IndexSet) {
  let paths = offsets.map { authorizedFolders[$0].path }
  authorizedFolders.remove(atOffsets: offsets)
  Task {
- let store = BookmarkStore
- try? await store.loadAll
+ let store = BookmarkStore()
+ try? await store.loadAll()
  for path in paths {
  try? await store.remove(path: path)
  }
@@ -258,7 +258,7 @@ struct SettingsView: View {
  // `currentSessionId = nil` visible-state refresh, on MainActor.
  // SettingsView no longer reaches into storage — that was the cause
  // of the ghost-row bug.
- await onClearAllSessions?
+ await onClearAllSessions?()
  }
 
  private var clearChatHistoryRow: some View {
@@ -268,7 +268,7 @@ struct SettingsView: View {
  Text("Clear Chat History")
  .glassType(.bodyEmphasis)
  .foregroundStyle(Color.glassError)
- Spacer
+ Spacer()
  if isClearingHistory {
  PixelStepIndicator(
  tint: Color.glassError,
@@ -279,7 +279,7 @@ struct SettingsView: View {
  )
  }
  }
- .contentShape(Rectangle)
+ .contentShape(Rectangle())
  }
 }
 
@@ -384,7 +384,7 @@ struct MCPServersSection: View {
  MCPServerDetail(
  server: server,
  sharedServices: sharedServices,
- onUpdate: { await loadServers },
+ onUpdate: { await loadServers() },
  onTestResult: { id, snapshot in serverHealth[id] = snapshot }
  )
  } label: {
@@ -398,7 +398,7 @@ struct MCPServersSection: View {
  .foregroundStyle(Color.glassTextMuted)
  .lineLimit(1)
  }
- Spacer
+ Spacer()
  healthDot(for: server)
  }
  .padding(.horizontal, GlassSpacing.l)
@@ -415,7 +415,7 @@ struct MCPServersSection: View {
  Section {
  Button { showAddServer = true } label: {
  SettingsRowLabel(title: "Add Server", systemImage: "plus") {
- EmptyView
+ EmptyView()
  }
  }
  .buttonStyle(.relaySurfaceFeedback)
@@ -425,13 +425,13 @@ struct MCPServersSection: View {
  }
  .navigationTitle("MCP Servers")
  .navigationBarTitleDisplayMode(.large)
- .settingsListChrome
+ .settingsListChrome()
  .sheet(isPresented: $showAddServer) {
  MCPAddServerView(sharedServices: sharedServices,
  onSave: { Task { await loadServers } },
  onTestResult: { id, snapshot in serverHealth[id] = snapshot })
  }
- .task { await loadServers }
+ .task { await loadServers() }
  }
 
  @ViewBuilder
@@ -472,7 +472,7 @@ struct MCPServersSection: View {
  }
 
  private func loadServers() async {
- servers = await MCPConfigStore.shared.allServers
+ servers = await MCPConfigStore.shared.allServers()
  }
 
  private func deleteServers(at offsets: IndexSet) async {
@@ -482,7 +482,7 @@ struct MCPServersSection: View {
  await MCPConfigStore.shared.remove(id: server.id)
  serverHealth.removeValue(forKey: server.id)
  }
- await loadServers
+ await loadServers()
  }
 }
 
@@ -495,7 +495,7 @@ private struct MCPDiagnosticsCard: View {
  HStack(spacing: GlassSpacing.s) {
  Text(diagnostic.phase.title)
  .glassType(.caption)
- Spacer
+ Spacer()
  HStack(spacing: 6) {
  Image(systemName: iconName(for: diagnostic.state))
  .foregroundStyle(color(for: diagnostic.state))
@@ -508,7 +508,7 @@ private struct MCPDiagnosticsCard: View {
  }
 
  if let failure = snapshot.primaryFailure {
- Divider
+ Divider()
  VStack(alignment: .leading, spacing: 4) {
  Text(failure.headline)
  .glassType(.caption)
@@ -528,7 +528,7 @@ private struct MCPDiagnosticsCard: View {
  }
 
  if !snapshot.toolNames.isEmpty {
- Divider
+ Divider()
  VStack(alignment: .leading, spacing: 2) {
  ForEach(snapshot.toolNames, id: \.self) { name in
  Text("• \(name)")
@@ -539,7 +539,7 @@ private struct MCPDiagnosticsCard: View {
  }
 
  if let negotiatedProtocolVersion = snapshot.negotiatedProtocolVersion {
- Divider
+ Divider()
  Text("Protocol \(negotiatedProtocolVersion)")
  .glassType(.caption)
  .foregroundStyle(Color.glassTextMuted)
@@ -609,7 +609,7 @@ struct MCPAddServerView: View {
  .glassType(.body)
  .foregroundStyle(Color.glassText)
  .textInputAutocapitalization(.never)
- .autocorrectionDisabled
+ .autocorrectionDisabled()
  }
  } header: {
  SettingsSectionHeader(title: "Server")
@@ -626,7 +626,7 @@ struct MCPAddServerView: View {
  ]
  } label: {
  SettingsRowLabel(title: "Canvas LMS", systemImage: "graduationcap") {
- EmptyView
+ EmptyView()
  }
  }
  .buttonStyle(.relaySurfaceFeedback)
@@ -639,7 +639,7 @@ struct MCPAddServerView: View {
  ]
  } label: {
  SettingsRowLabel(title: "GitHub", systemImage: "chevron.left.forwardslash.chevron.right") {
- EmptyView
+ EmptyView()
  }
  }
  .buttonStyle(.relaySurfaceFeedback)
@@ -652,7 +652,7 @@ struct MCPAddServerView: View {
  ]
  } label: {
  SettingsRowLabel(title: "Notion", systemImage: "doc.text") {
- EmptyView
+ EmptyView()
  }
  }
  .buttonStyle(.relaySurfaceFeedback)
@@ -669,7 +669,7 @@ struct MCPAddServerView: View {
  .glassType(.body)
  .foregroundStyle(Color.glassText)
  .textInputAutocapitalization(.never)
- .autocorrectionDisabled
+ .autocorrectionDisabled()
  .frame(maxWidth: .infinity)
  if isSensitiveKey(pair.key) {
  SecureField("Value", text: $pair.value)
@@ -681,10 +681,10 @@ struct MCPAddServerView: View {
  .glassType(.body)
  .foregroundStyle(Color.glassText)
  .textInputAutocapitalization(.never)
- .autocorrectionDisabled
+ .autocorrectionDisabled()
  .frame(maxWidth: .infinity)
  }
- Button { headerPairs.removeAll { $0.id == pair.id } } label: {
+ Button { headerPairs.removeAll() { $0.id == pair.id } } label: {
  Image(systemName: "minus")
  .font(.system(size: 12, weight: .bold))
  .frame(width: 22, height: 22)
@@ -715,7 +715,7 @@ struct MCPAddServerView: View {
  SettingsFieldRow {
  HStack {
  Text("Timeout").glassType(.body)
- Spacer
+ Spacer()
  Text("\(Int(timeout))s")
  .glassType(.numeric)
  .foregroundStyle(Color.glassTextMuted)
@@ -734,7 +734,7 @@ struct MCPAddServerView: View {
  HStack {
  Label("Test Connection", systemImage: "network")
  .glassType(.body)
- Spacer
+ Spacer()
  if isTesting {
  PixelStepIndicator(
  tint: Color.glassText,
@@ -768,7 +768,7 @@ struct MCPAddServerView: View {
  }
  .navigationTitle("Add Server")
  .navigationBarTitleDisplayMode(.large)
- .settingsListChrome
+ .settingsListChrome()
  .safeAreaInset(edge: .top, spacing: 0) {
  SettingsTopActionBar {
  Button("Cancel") { dismiss }
@@ -794,10 +794,10 @@ struct MCPAddServerView: View {
  }
 
  private func testConnection() async {
- guard let config = buildConfig else {
+ guard let config = buildConfig() else {
  let snapshot = invalidURLSnapshot
- testSnapshot = snapshot
- onTestResult?(draftId, snapshot)
+ testSnapshot = snapshot()
+ onTestResult?(draftId, snapshot())
  return
  }
  isTesting = true
@@ -811,12 +811,12 @@ struct MCPAddServerView: View {
  }
 
  private func save() async {
- guard let config = buildConfig else { return }
+ guard let config = buildConfig() else { return }
  isSaving = true
  await MCPConfigStore.shared.add(config)
  isSaving = false
- onSave
- dismiss
+ onSave()
+ dismiss()
  }
 
  private func snapshot(from report: MCPConnectionReport) -> ServerHealthSnapshot {
@@ -839,7 +839,7 @@ struct MCPAddServerView: View {
  toolCount: nil,
  toolNames: [],
  error: failure.headline,
- checkedAt: Date,
+ checkedAt: Date(),
  diagnostics: [
  .failure(.reachability, failure: failure),
  .skipped(.protocolCompatibility),
@@ -882,7 +882,7 @@ struct MCPServerDetail: View {
  .glassType(.body)
  .foregroundStyle(Color.glassText)
  .textInputAutocapitalization(.never)
- .autocorrectionDisabled
+ .autocorrectionDisabled()
  }
  } header: {
  SettingsSectionHeader(title: "Server")
@@ -896,7 +896,7 @@ struct MCPServerDetail: View {
  .glassType(.body)
  .foregroundStyle(Color.glassText)
  .textInputAutocapitalization(.never)
- .autocorrectionDisabled
+ .autocorrectionDisabled()
  .frame(maxWidth: .infinity)
  if isSensitiveKey(pair.key) {
  SecureField("Value", text: $pair.value)
@@ -908,10 +908,10 @@ struct MCPServerDetail: View {
  .glassType(.body)
  .foregroundStyle(Color.glassText)
  .textInputAutocapitalization(.never)
- .autocorrectionDisabled
+ .autocorrectionDisabled()
  .frame(maxWidth: .infinity)
  }
- Button { headerPairs.removeAll { $0.id == pair.id } } label: {
+ Button { headerPairs.removeAll() { $0.id == pair.id } } label: {
  Image(systemName: "minus")
  .font(.system(size: 12, weight: .bold))
  .frame(width: 22, height: 22)
@@ -944,7 +944,7 @@ struct MCPServerDetail: View {
  SettingsFieldRow {
  HStack {
  Text("Timeout").glassType(.body)
- Spacer
+ Spacer()
  Text("\(Int(timeout))s")
  .glassType(.numeric)
  .foregroundStyle(Color.glassTextMuted)
@@ -963,7 +963,7 @@ struct MCPServerDetail: View {
  HStack {
  Label("Test Connection", systemImage: "network")
  .glassType(.body)
- Spacer
+ Spacer()
  if isTesting {
  PixelStepIndicator(
  tint: Color.glassText,
@@ -1004,10 +1004,10 @@ struct MCPServerDetail: View {
  }
  .navigationTitle(server.name)
  .navigationBarTitleDisplayMode(.large)
- .settingsListChrome
+ .settingsListChrome()
  .safeAreaInset(edge: .top, spacing: 0) {
  SettingsTopActionBar {
- EmptyView
+ EmptyView()
  } trailing: {
  Button("Save") { Task { await saveChanges } }
  .buttonStyle(.relayGlass(.primary, burst: .buttonTap))
@@ -1033,8 +1033,8 @@ struct MCPServerDetail: View {
  private func testConnection() async {
  guard let url = URL(string: baseURL) else {
  let snapshot = invalidURLSnapshot
- testSnapshot = snapshot
- onTestResult?(server.id, snapshot)
+ testSnapshot = snapshot()
+ onTestResult?(server.id, snapshot())
  return
  }
  isTesting = true
@@ -1056,13 +1056,13 @@ struct MCPServerDetail: View {
  isEnabled: isEnabled, timeout: timeout)
  await sharedServices.mcpProvider?.removeClient(id: server.id)
  await MCPConfigStore.shared.add(updated)
- await onUpdate
+ await onUpdate()
  }
 
  private func deleteServer() async {
  await sharedServices.mcpProvider?.removeClient(id: server.id)
  await MCPConfigStore.shared.remove(id: server.id)
- await onUpdate
+ await onUpdate()
  dismiss
  }
 
@@ -1086,7 +1086,7 @@ struct MCPServerDetail: View {
  toolCount: nil,
  toolNames: [],
  error: failure.headline,
- checkedAt: Date,
+ checkedAt: Date(),
  diagnostics: [
  .failure(.reachability, failure: failure),
  .skipped(.protocolCompatibility),
@@ -1099,5 +1099,5 @@ struct MCPServerDetail: View {
 }
 
 #Preview {
- SettingsView(sessionIndex: SessionIndex, sharedServices: SharedServices)
+ SettingsView(sessionIndex: SessionIndex(), sharedServices: SharedServices())
 }

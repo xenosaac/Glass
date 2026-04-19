@@ -36,7 +36,7 @@ public struct GlassSurfaceModifier: ViewModifier {
  .inset(by: 2)
  .stroke(palette.highlight.opacity(colorScheme == .dark ? 0.55 : 0.8), lineWidth: 1.25)
  .mask(alignment: .top) {
- Rectangle
+ Rectangle()
  .frame(height: highlightBandHeight)
  }
 
@@ -44,7 +44,7 @@ public struct GlassSurfaceModifier: ViewModifier {
  .inset(by: 2)
  .stroke(palette.shadow.opacity(colorScheme == .dark ? 0.45 : 0.6), lineWidth: 1)
  .mask(alignment: .bottom) {
- Rectangle
+ Rectangle()
  .frame(height: highlightBandHeight)
  }
  }

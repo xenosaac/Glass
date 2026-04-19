@@ -97,7 +97,7 @@ public actor GmailAPIClient {
  query: [("format", "full")],
  body: nil
  )
- return raw.parsed
+ return raw.parsed()
  }
 
  public func threadFull(id: String) async throws -> GmailThread {
@@ -107,7 +107,7 @@ public actor GmailAPIClient {
  query: [("format", "full")],
  body: nil
  )
- return GmailThread(id: raw.id, messages: raw.messages.map { $0.parsed })
+ return GmailThread(id: raw.id, messages: raw.messages.map { $0.parsed() })
  }
 
  public func createDraft(raw: String, threadId: String?) async throws -> String {
@@ -206,7 +206,7 @@ public actor GmailAPIClient {
  throw GmailError.httpStatus(http.statusCode, msg)
  }
  do {
- return try JSONDecoder.decode(T.self, from: data)
+ return try JSONDecoder().decode(T.self, from: data)
  } catch {
  throw GmailError.decodeFailed(error.localizedDescription)
  }
@@ -226,15 +226,15 @@ public actor GmailAPIClient {
  }
 
  private func currentAccessToken() async throws -> String {
- guard let tokens = await tokenStore.load else { throw GmailError.notSignedIn }
+ guard let tokens = await tokenStore.load() else { throw GmailError.notSignedIn }
  if tokens.isExpired {
- return try await forceRefresh
+ return try await forceRefresh()
  }
  return tokens.accessToken
  }
 
  private func forceRefresh() async throws -> String {
- guard let current = await tokenStore.load else { throw GmailError.notSignedIn }
+ guard let current = await tokenStore.load() else { throw GmailError.notSignedIn }
  do {
  let fresh = try await auth.refresh(refreshToken: current.refreshToken)
  let merged = GmailTokens(
@@ -247,7 +247,7 @@ public actor GmailAPIClient {
  return merged.accessToken
  } catch {
  // Refresh token is dead — clear and surface a signed-out state.
- await tokenStore.clear
+ await tokenStore.clear()
  throw GmailError.refreshFailed(error.localizedDescription)
  }
  }

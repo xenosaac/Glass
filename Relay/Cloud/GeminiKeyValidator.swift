@@ -43,6 +43,6 @@ struct GeminiKeyValidator: Sendable {
 
  private static func liveProbe(_ key: String) async throws -> String {
  let client = GeminiClient(apiKey: key)
- return try await client.validateGreetingProbe
+ return try await client.validateGreetingProbe()
  }
 }

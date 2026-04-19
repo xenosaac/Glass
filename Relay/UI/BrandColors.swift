@@ -43,7 +43,7 @@ struct GlassShadow: ViewModifier {
 
 extension View {
  func glassShadow() -> some View {
- modifier(GlassShadow)
+ modifier(GlassShadow())
  }
 
  func glassShadowUp() -> some View {

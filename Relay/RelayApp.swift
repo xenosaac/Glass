@@ -11,7 +11,7 @@ struct RelayApp: App {
 
  var body: some Scene {
  WindowGroup {
- RelayAppShell
+ RelayAppShell()
  .preferredColorScheme(themeManager.mode.colorScheme)
  }
  }

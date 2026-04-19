@@ -133,7 +133,7 @@ public actor MemoryStore {
 
  /// List all topic files (not `MEMORY.md`), sorted by name.
  public func listFiles() async throws -> [String] {
- try ensureDirectory
+ try ensureDirectory()
  let items = try fileManager.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)
  return items
  .map { $0.lastPathComponent }
@@ -151,7 +151,7 @@ public actor MemoryStore {
  /// the model can reason over them without a separate `memory_read` tool.
  public func readAllTopics(budgetBytes: Int = 15_000) async -> [String: String] {
  var out: [String: String] = [:]
- guard let names = try? await listFiles else { return out }
+ guard let names = try? await listFiles() else { return out }
  var used = 0
  for name in names {
  guard let body = try? await readFile(name) else { continue }
@@ -168,7 +168,7 @@ public actor MemoryStore {
  /// skipped. The running total is capped by `budgetBytes`.
  public func loadRetrievalDocuments(budgetBytes: Int = 20_000) async -> [MemoryDocument] {
  var out: [MemoryDocument] = []
- guard let names = try? await listFiles else { return out }
+ guard let names = try? await listFiles() else { return out }
 
  var used = 0
  for name in names {
@@ -187,7 +187,7 @@ public actor MemoryStore {
  /// Read a single topic file. Throws if the path fails validation or the
  /// file is missing.
  public func readFile(_ relativePath: String) async throws -> String {
- try ensureDirectory
+ try ensureDirectory()
  let url = try validated(relativePath: relativePath)
  return try String(contentsOf: url, encoding: .utf8)
  }
@@ -201,7 +201,7 @@ public actor MemoryStore {
  /// entries" into a self-correcting error loop instead of silent data
  /// loss. Adding new bullets is always allowed.
  public func writeFile(_ relativePath: String, content: String) async throws {
- try ensureDirectory
+ try ensureDirectory()
  let url = try validated(relativePath: relativePath)
 
  guard let data = content.data(using: .utf8) else {
@@ -227,7 +227,7 @@ public actor MemoryStore {
  /// bullets. Used only to compare "what's in the current index" vs "what
  /// the model wants to write" so we can reject drops.
  private static func indexFileRefs(in body: String) -> Set<String> {
- var refs = Set<String>
+ var refs = Set<String>()
  let regex = try? NSRegularExpression(
  pattern: #"\]\(([a-zA-Z0-9_./]+\.md)\)"#
  )
@@ -243,7 +243,7 @@ public actor MemoryStore {
 
  /// Delete a topic file (or `MEMORY.md`). No-op if missing.
  public func deleteFile(_ relativePath: String) async throws {
- try ensureDirectory
+ try ensureDirectory()
  let url = try validated(relativePath: relativePath)
  if fileManager.fileExists(atPath: url.path) {
  try fileManager.removeItem(at: url)
@@ -254,7 +254,7 @@ public actor MemoryStore {
  /// (the model sometimes updates a file and re-emits the same index
  /// pointer).
  public func appendToIndex(_ line: String) async throws {
- try ensureDirectory
+ try ensureDirectory()
  let url = root.appendingPathComponent("MEMORY.md")
  let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
  guard !trimmed.isEmpty else { return }
@@ -313,7 +313,7 @@ public actor MemoryStore {
  public func appendErrorLog(fileName: String, errorMessage: String) async {
  try? ensureDirectory
  let url = root.appendingPathComponent(Self.writebackErrorLogName)
- let timestamp = ISO8601DateFormatter().string(from: Date)
+ let timestamp = ISO8601DateFormatter().string(from: Date())
  let safeMessage = errorMessage.replacingOccurrences(of: "\n", with: " ")
  let safeFile = fileName.replacingOccurrences(of: "\n", with: " ")
  let entry = "\(timestamp) \(safeFile) \(safeMessage)\n"
@@ -335,7 +335,7 @@ public actor MemoryStore {
  // we discard it when joining below.
  let nonEmptyLines = lines.filter { !$0.isEmpty }
  if nonEmptyLines.count > Self.writebackErrorLogMaxLines {
- let kept = nonEmptyLines.suffix(Self.writebackErrorLogTrimToLines).map(String.init())
+ let kept = nonEmptyLines.suffix(Self.writebackErrorLogTrimToLines).map(String.init)
  combined = kept.joined(separator: "\n") + "\n"
  }
 

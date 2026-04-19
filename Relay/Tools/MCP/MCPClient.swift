@@ -229,7 +229,7 @@ public actor MCPClient: MCPClientService {
  private func performInitialization(forceRefresh: Bool) async throws -> InitializationState {
  if forceRefresh {
  log("initialize reset requested")
- await resetInitializationState
+ await resetInitializationState()
  }
 
  if hasCompletedInitialization,
@@ -248,7 +248,7 @@ public actor MCPClient: MCPClientService {
  log("initialize start protocol=\(Self.supportedProtocolVersion)")
  let task = Task<InitializationState, Error> { [config, transport] in
  Self.log(server: config.safeName, "initialize request start")
- let request = JSONRPCRequest(method: "initialize", params: Self.initializeParams)
+ let request = JSONRPCRequest(method: "initialize", params: Self.initializeParams())
  let response: HTTPTransportResponse<MCPInitializeResult> = try await transport.sendWithMetadata(
  request: request,
  responseType: MCPInitializeResult.self
@@ -297,8 +297,8 @@ public actor MCPClient: MCPClientService {
  negotiatedProtocolVersion = nil
  initializedServerName = nil
  initializeTask = nil
- invalidateCache
- await transport.clearSessionState
+ invalidateCache()
+ await transport.clearSessionState()
  }
 
  private nonisolated static func initializeParams() -> [String: AnyCodable] {
@@ -309,7 +309,7 @@ public actor MCPClient: MCPClientService {
 
  return [
  "protocolVersion": AnyCodable(supportedProtocolVersion),
- "capabilities": AnyCodable([String: Any]),
+ "capabilities": AnyCodable([String: Any]()),
  "clientInfo": AnyCodable(clientInfo.mapValues(\.value))
  ]
  }

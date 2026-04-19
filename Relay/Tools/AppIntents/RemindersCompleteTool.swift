@@ -33,8 +33,8 @@ public struct RemindersCompleteTool: RelayTool, Sendable {
 
  let appIntents = context.services.appIntents
 
- if !(await appIntents.hasRemindersAccess) {
- let granted = await appIntents.requestRemindersAccess
+ if !(await appIntents().hasRemindersAccess()) {
+ let granted = await appIntents().requestRemindersAccess()
  if !granted {
  return ToolResult(
  toolUseId: "",
@@ -45,7 +45,7 @@ public struct RemindersCompleteTool: RelayTool, Sendable {
  }
 
  do {
- try await appIntents.completeReminder(id: reminderId)
+ try await appIntents().completeReminder(id: reminderId)
  return ToolResult(toolUseId: "", output: "Marked reminder complete (ID: \(reminderId))")
  } catch {
  return ToolResult(toolUseId: "", output: "Error: \(error.localizedDescription)", isError: true)

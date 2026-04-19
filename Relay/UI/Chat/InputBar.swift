@@ -76,7 +76,7 @@ struct InputBar: View {
  .lineLimit(1...5)
  .focused($isFocused)
  .onSubmit {
- if canSend { onSend }
+ if canSend { onSend() }
  }
 
  HStack(alignment: .center, spacing: GlassSpacing.s) {
@@ -102,16 +102,16 @@ struct InputBar: View {
 
  HStack(spacing: GlassSpacing.s) {
  drawerActionButton(systemImage: "camera", title: "Camera") {
- onAccessoryDismiss
- onTakePhotoTap
+ onAccessoryDismiss()
+ onTakePhotoTap()
  }
  drawerActionButton(systemImage: "photo.on.rectangle", title: "Photos") {
- onAccessoryDismiss
- onChoosePhotosTap
+ onAccessoryDismiss()
+ onChoosePhotosTap()
  }
  drawerActionButton(systemImage: "doc", title: "Files") {
- onAccessoryDismiss
- onImportFilesTap
+ onAccessoryDismiss()
+ onImportFilesTap()
  }
  }
  }
@@ -125,7 +125,7 @@ struct InputBar: View {
  DragGesture(minimumDistance: 8)
  .onEnded { value in
  if value.translation.height > 40 {
- onAccessoryDismiss
+ onAccessoryDismiss()
  }
  }
  )
@@ -133,7 +133,7 @@ struct InputBar: View {
 
  private var accessoryButton: some View {
  Button {
- onAccessoryToggle
+ onAccessoryToggle()
  } label: {
  Image(systemName: isAccessoryDrawerPresented ? "xmark" : "plus")
  .font(.system(size: 16, weight: .bold))
@@ -158,7 +158,7 @@ struct InputBar: View {
  }
 
  Button {
- onVoiceTap?
+ onVoiceTap?()
  } label: {
  ZStack {
  Image(systemName: isVoiceActive ? "mic.fill" : "mic")
@@ -182,7 +182,7 @@ struct InputBar: View {
 
  private var sendButton: some View {
  Button {
- onSend
+ onSend()
  } label: {
  Group {
  if isRunning {
@@ -225,8 +225,8 @@ struct InputBar: View {
  Group {
  if let uiImage = UIImage(contentsOfFile: image.stagedURL.path) {
  Image(uiImage: uiImage)
- .resizable
- .scaledToFill
+ .resizable()
+ .scaledToFill()
  } else {
  ZStack {
  Color.clear

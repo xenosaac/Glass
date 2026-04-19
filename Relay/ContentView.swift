@@ -28,7 +28,7 @@ struct ContentView: View {
  .font(.system(.caption, design: .monospaced))
  .foregroundStyle(.secondary)
  }
- Divider
+ Divider()
  .padding(.vertical, 8)
  }
 
@@ -39,7 +39,7 @@ struct ContentView: View {
  .textSelection(.enabled)
  }
  }
- .padding
+ .padding()
  }
  .navigationTitle("Glass")
  .toolbar {
@@ -62,7 +62,7 @@ struct ContentView: View {
  }
  }
  .sheet(item: $pendingMailCompose) { data in
- if canSendMail {
+ if canSendMail() {
  MailComposeView(data: data) { result in
  pendingMailCompose = nil
  switch result {
@@ -83,12 +83,12 @@ struct ContentView: View {
  Text("Mail is not configured on this device")
  .foregroundStyle(.secondary)
  Button("Dismiss") { pendingMailCompose = nil }
- .padding
+ .padding()
  }
  }
  }
  .sheet(item: $pendingSMSCompose) { data in
- if canSendText {
+ if canSendText() {
  MessageComposeView(data: data) { result in
  pendingSMSCompose = nil
  switch result {
@@ -107,13 +107,13 @@ struct ContentView: View {
  Text("iMessage is not configured on this device")
  .foregroundStyle(.secondary)
  Button("Dismiss") { pendingSMSCompose = nil }
- .padding
+ .padding()
  }
  }
  }
  }
  .task {
- await initializeProviders
+ await initializeProviders()
  }
  .onAppear {
  log.append("AppIntent Agent")
@@ -125,11 +125,11 @@ struct ContentView: View {
  @MainActor
  private func initializeProviders() async {
  // Initialize FileProvider
- let fp = FileProvider
+ let fp = FileProvider()
  do {
- try await fp.initialize
+ try await fp.initialize()
  fileProvider = fp
- authorizedFolders = await fp.authorizedFolders
+ authorizedFolders = await fp.authorizedFolders()
  log.append("✅ FileProvider initialized (\(authorizedFolders.count) folders)")
  } catch {
  log.append("⚠️ FileProvider init failed: \(error)")
@@ -138,15 +138,15 @@ struct ContentView: View {
 
  // Initialize MCPToolProvider
  if RelayConfig.shared.mcpEnabled {
- mcpProvider = MCPToolProvider
- let serverCount = await MCPConfigStore.shared.enabledServers.count
+ mcpProvider = MCPToolProvider()
+ let serverCount = await MCPConfigStore.shared.enabledServers().count
  log.append("✅ MCPToolProvider initialized (\(serverCount) servers)")
  } else {
  log.append("⚠️ MCP disabled via MCP_ENABLED=false")
  }
 
  // Initialize SystemIntentsService (Calendar, Reminders, Mail, SMS)
- appIntentsService = SystemIntentsService
+ appIntentsService = SystemIntentsService()
  log.append("✅ SystemIntentsService initialized")
  }
 
@@ -158,7 +158,7 @@ struct ContentView: View {
  }
  do {
  try await provider.addAuthorization(url: url)
- authorizedFolders = await provider.authorizedFolders
+ authorizedFolders = await provider.authorizedFolders()
  log.append("✅ Added folder: \(url.lastPathComponent)")
  } catch {
  log.append("❌ Failed to add folder: \(error)")
@@ -172,7 +172,7 @@ struct ContentView: View {
 
  // Ensure directories exist
  do {
- try AppPaths.createIfNeeded
+ try AppPaths.createIfNeeded()
  } catch {
  log.append("⚠️ Failed to create app directories: \(error)")
  }
@@ -181,7 +181,7 @@ struct ContentView: View {
  // writable cache before Cactus initializes.
  let resolved: AppPaths.ResolvedModel
  do {
- guard let prepared = try await AppPaths.prepareGemmaE2BForLoad else {
+ guard let prepared = try await AppPaths.prepareGemmaE2BForLoad() else {
  log.append("❌ Gemma-4-E2B not found in app bundle or Documents fallback.")
  log.append("This should not happen in a properly built app — reinstall to recover.")
  isRunning = false
@@ -201,7 +201,7 @@ struct ContentView: View {
 
  log.append("Loading model from \(modelPath)...")
  do {
- try await host.load
+ try await host.load()
  log.append("✅ model loaded")
  } catch {
  log.append("❌ load failed: \(error)")
@@ -213,13 +213,13 @@ struct ContentView: View {
  // Work Stream C will introduce MemoryStore; add its init here then.
 
  // Register tool providers
- let registry = ToolRegistry
- await registry.register(EchoToolProvider)
- await registry.register(BuiltinToolProvider)
- await registry.register(FileToolProvider)
- await registry.register(AppIntentsToolProvider)
+ let registry = ToolRegistry()
+ await registry.register(EchoToolProvider())
+ await registry.register(BuiltinToolProvider())
+ await registry.register(FileToolProvider())
+ await registry.register(AppIntentsToolProvider())
  log.append("✅ AppIntentsToolProvider registered")
- await registry.register(GmailToolProvider)
+ await registry.register(GmailToolProvider())
  log.append("✅ GmailToolProvider registered")
 
  // Register MCP provider if available
@@ -227,10 +227,10 @@ struct ContentView: View {
  await registry.register(mcp)
  let mcpTools = await mcp.tools(for: ToolCallContext(
  messages: [],
- session: AgentSession(id: "init", startedAt: Date),
- approvalBroker: DefaultApprovalBroker,
+ session: AgentSession(id: "init", startedAt: Date()),
+ approvalBroker: DefaultApprovalBroker(),
  progress: { _ in },
- services: DefaultServiceLocator
+ services: DefaultServiceLocator()
  ))
  log.append("✅ MCPToolProvider registered (\(mcpTools.count) tools)")
  }
@@ -240,7 +240,7 @@ struct ContentView: View {
  fileProvider: fileProvider,
  mcpProvider: mcpProvider,
  appIntents: appIntentsService,
- gmail: GmailServiceImpl
+ gmail: GmailServiceImpl()
  )
  var services: [String] = []
  if fileProvider != nil { services.append("Files(\(authorizedFolders.count))") }
@@ -353,10 +353,10 @@ private struct EchoToolProvider: ToolProvider {
  var providerName: String { "echo-test" }
 
  func tools(for context: ToolCallContext) async -> [any RelayTool] {
- [EchoTool]
+ [EchoTool()]
  }
 }
 
 #Preview {
- ContentView
+ ContentView()
 }

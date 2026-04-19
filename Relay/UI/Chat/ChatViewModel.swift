@@ -174,7 +174,7 @@ class ChatViewModel {
  // Process sequentially (not flatMap) so tool-result replay can index
  // into the already-appended displayMessages array.
  do {
- let messages = try await sessionStore.loadAll
+ let messages = try await sessionStore.loadAll()
  rawHistory = messages
  displayMessages = []
  pendingToolDisplayIds = [:]
@@ -318,14 +318,14 @@ class ChatViewModel {
  /// Stop an in-progress recording and finalize. In voice-agent mode the
  /// transcript auto-submits; in dictation mode it lands in the composer.
  func stopVoice() {
- voiceEngine?.finishAndSubmit
+ voiceEngine?.finishAndSubmit()
  }
 
  /// Cancel an in-progress dictation without transcribing. Used by
  /// explicit dismiss gestures (not wired today but available for future
  /// cancel affordance).
  func cancelVoice() {
- voiceEngine?.cancel
+ voiceEngine?.cancel()
  }
 
  func send(
@@ -348,7 +348,7 @@ class ChatViewModel {
 
  // Initialize AgentCore if needed
  if agentCore == nil {
- await initializeAgentCore
+ await initializeAgentCore()
  }
 
  guard let core = agentCore else {
@@ -370,7 +370,7 @@ class ChatViewModel {
 
  var didAcceptTurn = false
  if case .user(let userContent) = normalizedTurn.transcriptMessage {
- displayMessages.append(.user(id: UUID, content: userContent))
+ displayMessages.append(.user(id: UUID(), content: userContent))
  didAcceptTurn = true
  }
 
@@ -389,7 +389,7 @@ class ChatViewModel {
  sessionTitle = metadata.title
  }
  if didAcceptTurn {
- onAccepted?
+ onAccepted?()
  }
 
  lastDoneMessage = nil
@@ -428,7 +428,7 @@ class ChatViewModel {
  if !completedWithDoneMessage, error == nil, runningToolOrder.isEmpty {
  agentStatus = .idle
  }
- onSessionUpdated?
+ onSessionUpdated?()
  return didAcceptTurn
  }
 
@@ -456,7 +456,7 @@ class ChatViewModel {
  ? .callingTool(name)
  : .callingTool("\(runningToolOrder.count) tools")
  displayMessages.append(.toolExecution(
- id: UUID,
+ id: UUID(),
  toolUseId: toolUseId,
  name: name,
  status: .running,
@@ -484,7 +484,7 @@ class ChatViewModel {
  }
  }
  activeTools.removeValue(forKey: toolUseId)
- runningToolOrder.removeAll { $0 == toolUseId }
+ runningToolOrder.removeAll() { $0 == toolUseId }
  if runningToolOrder.isEmpty {
  agentStatus = .thinking
  } else if runningToolOrder.count == 1 {
@@ -526,7 +526,7 @@ class ChatViewModel {
  }
 
  case .contextAdded(let source, _):
- displayMessages.append(.contextInjection(id: UUID, source: source))
+ displayMessages.append(.contextInjection(id: UUID(), source: source))
 
  case .routingDecision(let tier, _):
  routingTier = tier
@@ -554,7 +554,7 @@ class ChatViewModel {
  #endif
 
  if !sanitizedText.isEmpty {
- displayMessages.append(.assistant(id: UUID, text: sanitizedText, isStreaming: false))
+ displayMessages.append(.assistant(id: UUID(), text: sanitizedText, isStreaming: false))
  } else if !rawStreamingText.isEmpty {
  // Sanitization stripped everything — the model produced
  // only internal-channel junk. Surface explicitly instead
@@ -587,7 +587,7 @@ class ChatViewModel {
  // Wait for shared services if still loading
  // Pass sessionIndex through so a memory-palace rebuild path that
  // happens lazily from here (rare — usually the shell's pre-entry
- // task already ran loadIfNeeded with sessionIndex) still has the
+ // task already ran loadIfNeeded() with sessionIndex) still has the
  // rehydration context.
  await sharedServices.loadIfNeeded(sessionIndex: sessionIndex)
 
@@ -601,11 +601,11 @@ class ChatViewModel {
  }
 
  // Register tool providers (registry is per-session, lightweight)
- let registry = ToolRegistry
- await registry.register(BuiltinToolProvider)
- await registry.register(FileToolProvider)
- await registry.register(AppIntentsToolProvider)
- await registry.register(GmailToolProvider)
+ let registry = ToolRegistry()
+ await registry.register(BuiltinToolProvider())
+ await registry.register(FileToolProvider())
+ await registry.register(AppIntentsToolProvider())
+ await registry.register(GmailToolProvider())
  if let mcp = sharedServices.mcpProvider {
  await registry.register(mcp)
  }
@@ -615,7 +615,7 @@ class ChatViewModel {
  // service locator) must point at the same instance. Prefer the
  // process-wide singleton on SharedServices; fall back to a fresh
  // actor for smoke-test / headless paths that bypass the shell.
- let memoryStore = sharedServices.memoryStore ?? MemoryStore
+ let memoryStore = sharedServices.memoryStore ?? MemoryStore()
  let attachmentStore = AttachmentStore(sessionId: sessionId)
 
  // Build service locator from shared services
@@ -770,7 +770,7 @@ class ChatViewModel {
  // a persisted user turn (e.g. a future refactor forgets to isMeta
  // it), strip it at display time so it never surfaces in the bubble.
  let cleaned = Self.stripSystemReminders(from: content)
- return [.user(id: UUID, content: cleaned)]
+ return [.user(id: UUID(), content: cleaned)]
 
  case .assistant(let content):
  var results: [DisplayMessage] = []
@@ -785,7 +785,7 @@ class ChatViewModel {
  textBuffer += AssistantSanitizer.sanitize(text)
  case .toolUse(let toolUse):
  if !textBuffer.isEmpty {
- results.append(.assistant(id: UUID, text: textBuffer, isStreaming: false))
+ results.append(.assistant(id: UUID(), text: textBuffer, isStreaming: false))
  textBuffer = ""
  }
  // Created as .success with nil output. toolResult block will overwrite
@@ -793,7 +793,7 @@ class ChatViewModel {
  let idx = displayMessages.count + results.count
  pendingToolDisplayIds[toolUse.id] = idx
  results.append(.toolExecution(
- id: UUID,
+ id: UUID(),
  toolUseId: toolUse.id,
  name: toolUse.name,
  status: .success,
@@ -804,7 +804,7 @@ class ChatViewModel {
  }
 
  if !textBuffer.isEmpty {
- results.append(.assistant(id: UUID, text: textBuffer, isStreaming: false))
+ results.append(.assistant(id: UUID(), text: textBuffer, isStreaming: false))
  }
 
  return results

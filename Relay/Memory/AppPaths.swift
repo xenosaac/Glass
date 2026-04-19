@@ -288,7 +288,7 @@ public enum AppPaths {
  hydratedDestination: URL,
  documentsFallback: URL
  ) async throws -> ResolvedModel? {
- try createIfNeeded
+ try createIfNeeded()
 
  if modelDirectoryLooksValid(hydratedDestination) {
  return ResolvedModel(url: hydratedDestination, source: .hydratedBundle)
@@ -318,7 +318,7 @@ public enum AppPaths {
 
  try await Task.detached(priority: .userInitiated) {
  let fm = FileManager.default
- let parent = destination.deletingLastPathComponent
+ let parent = destination.deletingLastPathComponent()
  let staging = parent.appendingPathComponent("\(destination.lastPathComponent).staging", isDirectory: true)
 
  if !fm.fileExists(atPath: parent.path) {

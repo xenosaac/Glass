@@ -12,7 +12,7 @@ struct VoiceInputView: View {
  var body: some View {
  ZStack {
  Color.glassPageBackground
- .ignoresSafeArea
+ .ignoresSafeArea()
 
  VStack(spacing: GlassSpacing.xl) {
  Spacer(minLength: 0)
@@ -48,7 +48,7 @@ struct VoiceInputView: View {
  .onChange(of: voiceEngine.phase) { _, newPhase in
  // Auto-dismiss after finalize completes (didComplete set before phase → idle)
  if newPhase == .idle && voiceEngine.didComplete {
- onDismiss
+ onDismiss()
  }
  }
  }
@@ -59,7 +59,7 @@ struct VoiceInputView: View {
  private var phaseLabel: some View {
  switch voiceEngine.phase {
  case .idle:
- EmptyView
+ EmptyView()
  case .loadingWhisper:
  VStack(spacing: 12) {
  Image(systemName: "waveform")
@@ -133,7 +133,7 @@ struct VoiceInputView: View {
  // "no bespoke RoundedRectangle.fill" rule doesn't apply.
  // Capsule also sizes its rounding naturally to the bar
  // width, so we don't have to pick a hard-coded radius.
- Capsule
+ Capsule()
  .fill(voiceEngine.phase == .listening ? Color.glassAccent : Color.glassTextMuted.opacity(0.35))
  .frame(width: barWidth, height: barHeight(index: i, maxHeight: geo.size.height))
  }
@@ -163,7 +163,7 @@ struct VoiceInputView: View {
  Text("Start speaking…")
  .glassType(.title)
  .foregroundStyle(Color.glassTextMuted)
- .italic
+ .italic()
  .frame(maxWidth: .infinity)
  } else {
  ScrollView {
@@ -181,8 +181,8 @@ struct VoiceInputView: View {
  private var controlBar: some View {
  HStack(spacing: 48) {
  Button {
- voiceEngine.cancel
- onDismiss
+ voiceEngine.cancel()
+ onDismiss()
  } label: {
  Image(systemName: "xmark")
  .font(.system(size: 20, weight: .semibold))
@@ -194,7 +194,7 @@ struct VoiceInputView: View {
  if !isErrorPhase {
  let canSend = voiceEngine.phase == .listening
  Button {
- voiceEngine.finishAndSubmit
+ voiceEngine.finishAndSubmit()
  } label: {
  Image(systemName: "arrow.up")
  .font(.system(size: 22, weight: .semibold))

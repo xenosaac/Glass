@@ -155,7 +155,7 @@ struct PixelBurstEmitter: View {
  .allowsHitTesting(false)
  .onChange(of: trigger) { oldValue, newValue in
  guard newValue != oldValue else { return }
- launch
+ launch()
  }
  }
 
@@ -171,7 +171,7 @@ struct PixelBurstEmitter: View {
  }
  }
 
- DispatchQueue.main.asyncAfter(deadline: .now + style.duration + 0.08) {
+ DispatchQueue.main.asyncAfter(deadline: .now() + style.duration + 0.08) {
  guard generation == currentGeneration else { return }
  isVisible = false
  }
@@ -204,7 +204,7 @@ struct PixelStepIndicator: View {
  var isAnimating: Bool = true
 
  @State private var phase = 0
- private let timer = Timer.publish(every: 0.18, on: .main, in: .common).autoconnect
+ private let timer = Timer.publish(every: 0.18, on: .main, in: .common).autoconnect()
 
  var body: some View {
  HStack(spacing: spacing) {

@@ -49,7 +49,7 @@ public actor BookmarkStore {
  partial[entry.key] = data
  }
  }
- try persist
+ try persist()
  return
  }
 
@@ -62,9 +62,9 @@ public actor BookmarkStore {
  public func save(url: URL) throws {
  // On iOS, URLs from document picker are already security-scoped
  // We just need to create a bookmark to persist the access
- let didAccess = url.startAccessingSecurityScopedResource
+ let didAccess = url.startAccessingSecurityScopedResource()
  defer {
- if didAccess { url.stopAccessingSecurityScopedResource }
+ if didAccess { url.stopAccessingSecurityScopedResource() }
  }
 
  // iOS uses .minimalBookmark instead of .withSecurityScope
@@ -74,7 +74,7 @@ public actor BookmarkStore {
  relativeTo: nil
  )
  bookmarks[url.path] = bookmark
- try persist
+ try persist()
  print("[Bookmarks] save path=\(url.path) bookmark_bytes=\(bookmark.count) total_count=\(bookmarks.count)")
  }
 
@@ -101,7 +101,7 @@ public actor BookmarkStore {
  // Bookmark is stale, try to refresh it
  if let refreshed = try? resolvedURL.bookmarkData(options: .minimalBookmark, includingResourceValuesForKeys: nil, relativeTo: nil) {
  bookmarks[path] = refreshed
- try? persist
+ try? persist()
  }
  print("[Bookmarks] resolve path=\(path) result=stale_refreshed")
  } else {
@@ -113,7 +113,7 @@ public actor BookmarkStore {
  /// Remove a bookmark.
  public func remove(path: String) throws {
  bookmarks.removeValue(forKey: path)
- try persist
+ try persist()
  }
 
  /// All paths we have bookmarks for.
@@ -123,12 +123,12 @@ public actor BookmarkStore {
 
  /// Resolve all bookmarks to URLs.
  public func allResolved() -> [URL] {
- allPaths.compactMap { resolve(path: $0) }
+ allPaths().compactMap { resolve(path: $0) }
  }
 
  private func persist() throws {
  try StorageContractIO.ensureParentDirectory(for: storeURL)
- let dict = bookmarks.mapValues { $0.base64EncodedString }
+ let dict = bookmarks.mapValues { $0.base64EncodedString() }
  let envelope = VersionedStoreEnvelope(header: contract.schemaHeader, payload: dict)
  let data = try encoder.encode(envelope)
  try data.write(to: storeURL, options: .atomic)

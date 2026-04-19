@@ -10,13 +10,13 @@ public struct GmailToolProvider: ToolProvider, Sendable {
 
  public func tools(for context: ToolCallContext) async -> [any RelayTool] {
  let gmail = context.services.gmail
- guard await gmail.isSignedIn else { return [] }
+ guard await gmail().isSignedIn() else { return [] }
  return [
- GmailSearchTool,
- GmailReadMessageTool,
- GmailReadThreadTool,
- GmailDraftReplyTool,
- GmailSendTool,
+ GmailSearchTool(),
+ GmailReadMessageTool(),
+ GmailReadThreadTool(),
+ GmailDraftReplyTool(),
+ GmailSendTool(),
  ]
  }
 }

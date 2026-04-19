@@ -61,7 +61,7 @@ public actor SessionIndex {
 
  /// Load the session index from disk.
  public func load() async throws {
- try ensureBaseDirectory
+ try ensureBaseDirectory()
 
  guard FileManager.default.fileExists(atPath: indexURL.path) else {
  sessions = [:]
@@ -91,18 +91,18 @@ public actor SessionIndex {
  }
 
  sessions = Dictionary(uniqueKeysWithValues: list.map { ($0.id, $0) })
- if repairTranscriptDerivedFieldsForAllSessions {
+ if repairTranscriptDerivedFieldsForAllSessions() {
  shouldRewrite = true
  }
  if shouldRewrite {
- try save
+ try save()
  }
  }
 
  // MARK: - Save
 
  private func save() throws {
- try ensureBaseDirectory
+ try ensureBaseDirectory()
 
  let list = Array(sessions.values).sorted() { $0.lastMessageAt > $1.lastMessageAt }
  let envelope = VersionedStoreEnvelope(header: contract.schemaHeader, payload: list)
@@ -127,14 +127,14 @@ public actor SessionIndex {
  public func create(workspace: URL? = nil) throws -> SessionMetadata {
  let session = SessionMetadata(workspaceURL: workspace)
  sessions[session.id] = session
- try save
+ try save()
  return session
  }
 
  /// Update session metadata.
  public func update(_ session: SessionMetadata) throws {
  sessions[session.id] = session
- try save
+ try save()
  }
 
  /// Update session after a new message is added.
@@ -151,13 +151,13 @@ public actor SessionIndex {
  }
 
  sessions[sessionId] = session
- try save
+ try save()
  }
 
  /// Delete a session and its JSONL file.
  public func delete(id: String) throws {
  sessions.removeValue(forKey: id)
- try save
+ try save()
 
  // Also delete the session file
  let sessionFile = baseDir.appendingPathComponent("\(id).jsonl")
@@ -172,8 +172,8 @@ public actor SessionIndex {
  /// `sessions = []` / `currentSessionId = nil` refresh; the actor only owns
  /// storage.
  public func deleteAll() throws {
- sessions.removeAll
- try save
+ sessions.removeAll()
+ try save()
  guard let files = try? FileManager.default.contentsOfDirectory(
  at: baseDir, includingPropertiesForKeys: nil
  ) else { return }

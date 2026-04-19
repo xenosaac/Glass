@@ -75,7 +75,7 @@ public struct GlobTool: RelayTool, Sendable {
  public func call(input: ToolInput, context: ToolCallContext) async throws -> ToolResult {
  let decoded: Input
  do {
- decoded = try JSONDecoder.decode(Input.self, from: input.json)
+ decoded = try JSONDecoder().decode(Input.self, from: input.json)
  } catch {
  return ToolResult(toolUseId: "", output: "Invalid input: \(error.localizedDescription)", isError: true)
  }
@@ -88,7 +88,7 @@ public struct GlobTool: RelayTool, Sendable {
  searchRoot = FileReadTool.expandPath(explicit)
  } else {
  // Default: first authorized workspace folder, else memory dir.
- let workspaces = await context.services.fileProvider.authorizedFolders
+ let workspaces = await context.services.fileProvider().authorizedFolders()
  if let first = workspaces.first {
  searchRoot = first.standardizedFileURL.path
  } else {
@@ -122,11 +122,11 @@ public struct GlobTool: RelayTool, Sendable {
  includingPropertiesForKeys: [.isDirectoryKey, .contentModificationDateKey],
  options: [.skipsHiddenFiles]
  ) {
- while let item = enumerator.nextObject as? URL {
+ while let item = enumerator.nextObject() as? URL {
  let components = item.pathComponents
  if components.contains(where: { Self.excludedDirectoryNames.contains($0) }) {
  if let isDirectory = try? item.resourceValues(forKeys: [.isDirectoryKey]).isDirectory, isDirectory == true {
- enumerator.skipDescendants
+ enumerator.skipDescendants()
  }
  continue
  }

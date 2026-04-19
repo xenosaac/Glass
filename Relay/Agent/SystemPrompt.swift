@@ -470,7 +470,7 @@ public enum SystemPrompt {
  if let range = normalized.range(of: ". ") {
  firstSentence = String(normalized[..<range.lowerBound])
  } else if normalized.hasSuffix(".") {
- firstSentence = String(normalized.dropLast)
+ firstSentence = String(normalized.dropLast())
  } else {
  firstSentence = normalized
  }

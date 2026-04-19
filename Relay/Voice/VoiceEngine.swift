@@ -75,7 +75,7 @@ public final class VoiceEngine: @unchecked Sendable {
  private var captureSession: AudioCaptureSession?
  private var streamHandle: CactusStreamTranscribeT?
  private var recordingTask: Task<Void, Never>?
- private var allPCMData = Data
+ private var allPCMData = Data()
  private var silentChunkCount: Int = 0
  private var recordingStartTime: Date?
 
@@ -108,12 +108,12 @@ public final class VoiceEngine: @unchecked Sendable {
  didComplete = false
  partialTranscript = ""
  finalTranscript = ""
- allPCMData = Data
+ allPCMData = Data()
  silentChunkCount = 0
  recordingDuration = 0
 
  recordingTask = Task { [weak self] in
- await self?.runListeningPipeline
+ await self?.runListeningPipeline()
  }
  }
 
@@ -146,7 +146,7 @@ public final class VoiceEngine: @unchecked Sendable {
  /// Cancel the current recording. Discards audio.
  @MainActor
  public func cancel() {
- recordingTask?.cancel
+ recordingTask?.cancel()
  recordingTask = nil
 
  Task {
@@ -156,11 +156,11 @@ public final class VoiceEngine: @unchecked Sendable {
  streamHandle = nil
  }
  // tear down Apple Speech if it was the active backend.
- appleSpeech?.cancel
+ appleSpeech?.cancel()
  appleSpeech = nil
  appleSpeechFinalText = ""
 
- _ = captureSession?.stop
+ _ = captureSession?.stop()
  captureSession = nil
 
  phase = .idle
@@ -168,17 +168,17 @@ public final class VoiceEngine: @unchecked Sendable {
  onCancel = nil
  onComplete = nil
  onFailedTranscription = nil
- cb?
+ cb?()
  }
 
  /// Manually stop and submit (user taps send while still speaking).
  @MainActor
  public func finishAndSubmit() {
- UIImpactFeedbackGenerator(style: .light).impactOccurred
- recordingTask?.cancel
+ UIImpactFeedbackGenerator(style: .light).impactOccurred()
+ recordingTask?.cancel()
  recordingTask = nil
  Task { [weak self] in
- await self?.finalize
+ await self?.finalize()
  }
  }
 
@@ -210,7 +210,7 @@ public final class VoiceEngine: @unchecked Sendable {
  await MainActor.run { phase = .loadingWhisper }
  print("[VOICE_START] whisper not ready, waiting...")
  }
- guard let host = await voiceRuntime.ensureWhisperReady else {
+ guard let host = await voiceRuntime.ensureWhisperReady() else {
  await MainActor.run {
  phase = .error("Whisper model failed to load. Check Settings for details.")
  }
@@ -220,7 +220,7 @@ public final class VoiceEngine: @unchecked Sendable {
  print("[VOICE_START] whisperReady=true backend=cactus_whisper")
  } else {
  // Apple Speech needs runtime authorization. First call prompts.
- let status = await AppleSpeechTranscriber.requestAuthorization
+ let status = await AppleSpeechTranscriber.requestAuthorization()
  guard status == .authorized else {
  await MainActor.run {
  phase = .error("Speech recognition permission was denied. Enable it in Settings → Privacy → Speech Recognition.")
@@ -234,12 +234,12 @@ public final class VoiceEngine: @unchecked Sendable {
  guard !Task.isCancelled else { return }
 
  // 2. Start audio capture
- let capture = AudioCaptureSession
+ let capture = AudioCaptureSession()
  // Wire fail-fast error callback for interruption / route loss
  capture.onError = { [weak self] message in
  Task { @MainActor [weak self] in
  guard let self else { return }
- self.recordingTask?.cancel
+ self.recordingTask?.cancel()
  self.recordingTask = nil
  self.captureSession = nil
  // Clean up active Whisper stream
@@ -248,14 +248,14 @@ public final class VoiceEngine: @unchecked Sendable {
  }
  self.streamHandle = nil
  self.phase = .error(message)
- UINotificationFeedbackGenerator.notificationOccurred(.warning)
+ UINotificationFeedbackGenerator().notificationOccurred(.warning)
  }
  }
  captureSession = capture
 
  let pcmStream: AsyncStream<Data>
  do {
- pcmStream = try await capture.start
+ pcmStream = try await capture.start()
  } catch {
  await MainActor.run {
  phase = .error("Mic error: \(error.localizedDescription)")
@@ -274,7 +274,7 @@ public final class VoiceEngine: @unchecked Sendable {
  // Apple Speech (default; SFSpeechRecognizer; reliable)
  // Cactus Whisper (fallback; with R7-C language-hint optionsJson)
  if useApple {
- let asr = await MainActor.run { AppleSpeechTranscriber }
+ let asr = await MainActor.run { AppleSpeechTranscriber() }
  do {
  try await MainActor.run {
  try asr.start(
@@ -324,7 +324,7 @@ public final class VoiceEngine: @unchecked Sendable {
  await MainActor.run {
  phase = .listening
  recordingStartTime = Date()
- UIImpactFeedbackGenerator(style: .medium).impactOccurred
+ UIImpactFeedbackGenerator(style: .medium).impactOccurred()
  }
 
  // 4. Process loop
@@ -384,14 +384,14 @@ public final class VoiceEngine: @unchecked Sendable {
  // Auto-stop: silence detected AND minimum recording reached (audio-level only, no transcript gate)
  let chunksForSilence = Int(silenceTimeoutSeconds * 1000) / chunkDurationMs
  if silentChunkCount >= chunksForSilence && duration >= minRecordingSeconds {
- await MainActor.run { UIImpactFeedbackGenerator(style: .soft).impactOccurred }
- await finalize
+ await MainActor.run { UIImpactFeedbackGenerator(style: .soft).impactOccurred() }
+ await finalize()
  return
  }
 
  // Safety: max recording
  if duration >= maxRecordingSeconds {
- await finalize
+ await finalize()
  }
  }
 
@@ -399,7 +399,7 @@ public final class VoiceEngine: @unchecked Sendable {
  await MainActor.run { phase = .processing }
 
  // Stop capture, get remaining PCM
- if let remaining = captureSession?.stop {
+ if let remaining = captureSession?.stop() {
  allPCMData.append(remaining)
  }
  captureSession = nil
@@ -422,7 +422,7 @@ public final class VoiceEngine: @unchecked Sendable {
  if let asr {
  // Apple Speech: signal end-of-audio, give the recognizer a brief
  // window to deliver its final result via the onFinal callback.
- await MainActor.run { asr.stop }
+ await MainActor.run { asr.stop() }
  // Drain — wait up to 1.5s for onFinal to land. SFSpeechRecognizer
  // typically delivers within 200-500ms after endAudio on-device.
  for _ in 0..<15 {
@@ -520,7 +520,7 @@ public final class VoiceEngine: @unchecked Sendable {
  // Skips when the buffer is genuinely empty (no audio at all).
  if !allPCMData.isEmpty {
  _ = saveWAV(pcmData: allPCMData, prefix: "voice_rejected")
- Self.pruneRejectedWAVs
+ Self.pruneRejectedWAVs()
  }
  #if DEBUG
  print("VOICE_FINALIZE rejected=empty_transcript pcm_bytes=\(allPCMData.count)")
@@ -537,7 +537,7 @@ public final class VoiceEngine: @unchecked Sendable {
  if let fail {
  fail("I couldn't transcribe that voice message. Please try again, or speak a bit closer to the microphone.")
  } else {
- cancel?
+ cancel?()
  }
  return
  }
@@ -558,7 +558,7 @@ public final class VoiceEngine: @unchecked Sendable {
  } else {
  // WAV write failed after a valid transcript — surface as cancel,
  // since we can't submit a voice turn without the audio file.
- onCancel?
+ onCancel?()
  }
  onComplete = nil
  onCancel = nil
@@ -584,7 +584,7 @@ public final class VoiceEngine: @unchecked Sendable {
  }
  }
  let mean = sumOfSquares / Double(sampleCount)
- return Float(mean.squareRoot)
+ return Float(mean.squareRoot())
  }
 
  // MARK: - Whisper hallucination detection (R7-A+++ )

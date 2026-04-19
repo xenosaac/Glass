@@ -40,6 +40,6 @@ public struct AutoCompactTrackingState: Sendable, Equatable {
  /// Zero-initialized tracking — the default starting state for a
  /// fresh session or a post-`hydrate` session.
  public static var empty: AutoCompactTrackingState {
- AutoCompactTrackingState
+ AutoCompactTrackingState()
  }
 }

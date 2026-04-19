@@ -3,16 +3,16 @@ import SwiftUI
 struct PreparingView: View {
  @State private var simmerTrigger = 0
  @State private var logoSettled = false
- private let simmerTimer = Timer.publish(every: 0.95, on: .main, in: .common).autoconnect
+ private let simmerTimer = Timer.publish(every: 0.95, on: .main, in: .common).autoconnect()
 
  var body: some View {
  ZStack {
- Color.glassPageBackground.ignoresSafeArea
+ Color.glassPageBackground.ignoresSafeArea()
 
  VStack(spacing: GlassSpacing.l) {
  Image("AppLogo")
- .resizable
- .scaledToFit
+ .resizable()
+ .scaledToFit()
  .frame(width: 72, height: 72)
  .clipShape(RetroCutShape(cut: 10))
  .overlay {
@@ -61,7 +61,7 @@ struct ModelUnavailableView: View {
 
  var body: some View {
  ZStack {
- Color.glassPageBackground.ignoresSafeArea
+ Color.glassPageBackground.ignoresSafeArea()
 
  VStack(spacing: GlassSpacing.l) {
  VStack(spacing: GlassSpacing.s) {
@@ -86,7 +86,7 @@ struct ModelUnavailableView: View {
  .glassSurface(.card)
 
  Button {
- onRetry
+ onRetry()
  } label: {
  Text("Retry")
  }

@@ -28,10 +28,10 @@ final class AudioCaptureSession: @unchecked Sendable {
  /// Called on audio session interruption or route loss. Fail-fast: recording stops.
  var onError: (@Sendable (String) -> Void)?
 
- private let engine = AVAudioEngine
+ private let engine = AVAudioEngine()
  private let targetSampleRate: Double = 16000
  private let chunkDurationMs: Int = 500
- private var pcmBuffer = Data
+ private var pcmBuffer = Data()
  private let bufferQueue = DispatchQueue(label: "relay.audio.buffer")
  private var continuation: AsyncStream<Data>.Continuation?
  private var interruptionObserver: Any?
@@ -45,11 +45,11 @@ final class AudioCaptureSession: @unchecked Sendable {
  /// Start capturing. Returns an AsyncStream of PCM Data chunks (16kHz mono Int16).
  func start() async throws -> AsyncStream<Data> {
  // Request mic permission
- let granted = await AVAudioApplication.requestRecordPermission
+ let granted = await AVAudioApplication.requestRecordPermission()
  guard granted else { throw CaptureError.micPermissionDenied }
 
  // Configure audio session for recording + playback (AirPods need both)
- let session = AVAudioSession.sharedInstance
+ let session = AVAudioSession.sharedInstance()
  try session.setCategory(.playAndRecord, mode: .default,
  options: [.defaultToSpeaker, .allowBluetooth])
  try session.setActive(true)
@@ -85,7 +85,7 @@ final class AudioCaptureSession: @unchecked Sendable {
 
  // Start engine
  do {
- try engine.start
+ try engine.start()
  } catch {
  throw CaptureError.engineStartFailed(error.localizedDescription)
  }
@@ -98,7 +98,7 @@ final class AudioCaptureSession: @unchecked Sendable {
  guard let type = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
  type == AVAudioSession.InterruptionType.began.rawValue else { return }
  // Fail-fast: stop capture, signal error
- _ = self?.stop
+ _ = self?.stop()
  self?.onError?("Recording interrupted by phone call.")
  }
 
@@ -110,7 +110,7 @@ final class AudioCaptureSession: @unchecked Sendable {
  guard let reason = notification.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
  reason == AVAudioSession.RouteChangeReason.oldDeviceUnavailable.rawValue else { return }
  // Fail-fast: audio device disconnected
- _ = self?.stop
+ _ = self?.stop()
  self?.onError?("Audio device disconnected.")
  }
 
@@ -126,19 +126,19 @@ final class AudioCaptureSession: @unchecked Sendable {
  routeChangeObserver = nil
 
  engine.inputNode.removeTap(onBus: 0)
- engine.stop
+ engine.stop()
 
  var remaining: Data?
  bufferQueue.sync {
  if !pcmBuffer.isEmpty {
  remaining = pcmBuffer
- pcmBuffer = Data
+ pcmBuffer = Data()
  }
  }
  continuation?.finish()
  continuation = nil
 
- try? AVAudioSession.sharedInstance.setActive(
+ try? AVAudioSession.sharedInstance().setActive(
  false, options: .notifyOthersOnDeactivation
  )
  return remaining

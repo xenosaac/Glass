@@ -9,7 +9,7 @@ import WatchConnectivity
 /// imported, and so a future K session can drop in implementation
 /// without touching anything else.
 public final class WCSessionBridge: NSObject, @unchecked Sendable {
- public static let shared = WCSessionBridge
+ public static let shared = WCSessionBridge()
 
  private override init() { super.init() }
 

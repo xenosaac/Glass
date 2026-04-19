@@ -52,7 +52,7 @@ public struct FolderPicker: UIViewControllerRepresentable {
  }
 
  public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
- onCancel?
+ onCancel?()
  }
  }
 }
