@@ -1,0 +1,121 @@
+name: Relay
+options:
+ bundleIdPrefix: com.isaac
+ deploymentTarget:
+ iOS: "26.0"
+ createIntermediateGroups: true
+ generateEmptyDirectories: true
+ defaultConfig: Debug
+
+settings:
+ base:
+ SWIFT_VERSION: "5.9"
+ CODE_SIGN_STYLE: Automatic
+ ENABLE_USER_SCRIPT_SANDBOXING: NO
+ SWIFT_STRICT_CONCURRENCY: minimal
+ configs:
+ Debug:
+ # Faster debug builds
+ SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+ SWIFT_COMPILATION_MODE: "incremental"
+ DEBUG_INFORMATION_FORMAT: "dwarf"
+ ONLY_ACTIVE_ARCH: YES
+
+targets:
+ RelayTests:
+ type: bundle.unit-test
+ platform: iOS
+ sources:
+ - path: RelayTests
+ dependencies:
+ - target: Relay
+ settings:
+ base:
+ PRODUCT_BUNDLE_IDENTIFIER: com.isaac.relay.tests
+ GENERATE_INFOPLIST_FILE: YES
+ DEVELOPMENT_TEAM: 9QHHYFMA4X
+ CODE_SIGN_STYLE: Automatic
+ # Host tests inside the main app to avoid standalone test runner issues
+ TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Relay.app/Relay"
+ BUNDLE_LOADER: "$(TEST_HOST)"
+
+ Relay:
+ type: application
+ platform: iOS
+ deploymentTarget: "26.0"
+ sources:
+ - path: Relay
+ - path: Shared
+ dependencies:
+ - framework: Frameworks/cactus-ios.xcframework
+ embed: true
+ - sdk: AVFoundation.framework
+ - sdk: EventKit.framework
+ - sdk: MessageUI.framework
+ - sdk: AppIntents.framework
+ - sdk: AuthenticationServices.framework
+ info:
+ # Xcodegen writes this Info.plist at project-generation time.
+ # CFBundleURLTypes below is required so iOS recognizes the Gmail OAuth
+ # redirect URI scheme as owned by this app; GmailConfig.callbackURLScheme
+ # reads the scheme from here at runtime (single source of truth).
+ path: Relay/Info.plist
+ properties:
+ CFBundleDisplayName: "Glass"
+ NSCameraUsageDescription: "Glass uses the camera so you can attach a freshly captured photo to your chat."
+ NSMicrophoneUsageDescription: "Glass uses the microphone to transcribe your voice for the agent."
+ NSSpeechRecognitionUsageDescription: "Glass uses speech recognition to convert your voice into text for the agent."
+ NSCalendarsFullAccessUsageDescription: "Glass needs calendar access to create and view events."
+ NSRemindersFullAccessUsageDescription: "Glass needs reminders access to create and manage reminders."
+ UILaunchScreen: {}
+ UIAppFonts:
+ - Resources/Fonts/PixelifySans.ttf
+ UIApplicationSceneManifest:
+ UIApplicationSupportsMultipleScenes: false
+ UISupportedInterfaceOrientations:
+ - UIInterfaceOrientationPortrait
+ CFBundleURLTypes:
+ - CFBundleTypeRole: Editor
+ # IMPORTANT: CFBundleURLName must match
+ # `GmailConfig.infoPlistURLName` in Relay/Gmail/GmailConfig.swift.
+ CFBundleURLName: com.isaac.relay.gmail
+ # Paste the reversed Client ID from Google Cloud Console here.
+ # Format: com.googleusercontent.apps.<CLIENT_ID>. The placeholder
+ # below is treated as unconfigured by GmailConfig.isConfigured.
+ CFBundleURLSchemes:
+ - com.googleusercontent.apps.630756077109-ja2uhgjb3b0lp09s874luo5foi601gh9
+ settings:
+ base:
+ PRODUCT_BUNDLE_IDENTIFIER: com.isaac.relay
+ TARGETED_DEVICE_FAMILY: "1"
+ IPHONEOS_DEPLOYMENT_TARGET: "26.0"
+ CODE_SIGN_ENTITLEMENTS: Relay/Relay.entitlements
+ # Pinned so `xcodegen generate` does not wipe the Team selection
+ # made in Xcode's Signing & Capabilities every regenerate.
+ DEVELOPMENT_TEAM: 9QHHYFMA4X
+ RELAY_BUNDLE_MODELS: "NO"
+ FRAMEWORK_SEARCH_PATHS:
+ - $(inherited)
+ - $(SRCROOT)/Frameworks
+ ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+ postBuildScripts:
+ - name: Bundle On-Device Models
+ basedOnDependencyAnalysis: false
+ script: |
+ set -euo pipefail
+ "${SRCROOT}/../scripts/models/bundle_models.sh"
+ - name: Bundle Local Developer Secrets
+ basedOnDependencyAnalysis: false
+ script: |
+ set -euo pipefail
+
+ SECRETS_SRC="${HOME}/.config/relay/RelayDeveloperSecrets.plist"
+ SECRETS_DEST="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RelayDeveloperSecrets.plist"
+
+ if [ -f "${SECRETS_SRC}" ]; then
+ echo "Bundling local developer secrets plist"
+ cp "${SECRETS_SRC}" "${SECRETS_DEST}"
+ else
+ rm -f "${SECRETS_DEST}"
+ echo "No local developer secrets plist found at ${SECRETS_SRC}"
+ fi

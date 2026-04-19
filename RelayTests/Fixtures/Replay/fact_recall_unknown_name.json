@@ -1,0 +1,104 @@
+{
+  "acceptedUserMessage": {
+    "user": {
+      "_0": {
+        "blocks": [
+          {
+            "text": {
+              "_0": "What is my name?"
+            }
+          }
+        ],
+        "isMeta": false
+      }
+    }
+  },
+  "canonicalHistory": [
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "Hi"
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    },
+    {
+      "assistant": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "Hey. I'm doing well. What would you like to work on today?"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "What is your name?"
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    },
+    {
+      "assistant": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "I am Glass."
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "cloudSteps": [],
+  "contextInputs": {
+    "attachmentDocuments": [],
+    "memoryDocuments": [],
+    "workspaceFiles": []
+  },
+  "expectation": {
+    "commitStages": [],
+    "exit": "completed",
+    "expectInterruptedToolResult": false,
+    "focusMustContain": [
+      "Turn classification: factRecallUnknown",
+      "Latest visible facts:",
+      "none available for this turn",
+      "Latest user message:"
+    ],
+    "promptMustContain": [
+      "# Current turn focus"
+    ],
+    "recoveryEvents": []
+  },
+  "name": "fact-recall-unknown-name",
+  "onDeviceSteps": [
+    {
+      "completion": {
+        "cloudHandoff": false,
+        "text": "I don't know your name yet. Tell me and I'll remember it.",
+        "toolUses": []
+      },
+      "isEmpty": false
+    }
+  ]
+}

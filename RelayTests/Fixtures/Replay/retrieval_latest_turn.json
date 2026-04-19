@@ -1,0 +1,95 @@
+{
+  "acceptedUserMessage": {
+    "user": {
+      "_0": {
+        "blocks": [
+          {
+            "text": {
+              "_0": "What does the attachment say about launch timing?"
+            }
+          }
+        ],
+        "isMeta": false
+      }
+    }
+  },
+  "canonicalHistory": [
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "Tell me about Paris"
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    },
+    {
+      "assistant": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "Paris is in France."
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "Thanks"
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    }
+  ],
+  "cloudSteps": [],
+  "contextInputs": {
+    "attachmentDocuments": [
+      {
+        "contents": "Launch timing is Friday evening. Keep the same date.",
+        "displayName": "launch_notes.txt"
+      }
+    ],
+    "memoryDocuments": [],
+    "workspaceFiles": []
+  },
+  "expectation": {
+    "commitStages": [],
+    "exit": "completed",
+    "expectInterruptedToolResult": false,
+    "expectedRetrievedArtifactCount": 1,
+    "focusMustContain": [
+      "Retrieved context available for this turn:",
+      "Latest user message:"
+    ],
+    "promptMustContain": [
+      "# Current turn focus"
+    ],
+    "recoveryEvents": []
+  },
+  "name": "retrieval-latest-turn",
+  "onDeviceSteps": [
+    {
+      "completion": {
+        "cloudHandoff": false,
+        "text": "The attachment says launch timing is Friday evening.",
+        "toolUses": []
+      },
+      "isEmpty": false
+    }
+  ]
+}

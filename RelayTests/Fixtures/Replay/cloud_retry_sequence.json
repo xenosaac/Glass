@@ -1,0 +1,73 @@
+{
+  "acceptedUserMessage": {
+    "user": {
+      "_0": {
+        "blocks": [
+          {
+            "text": {
+              "_0": "Can you answer this with the best model?"
+            }
+          }
+        ],
+        "isMeta": false
+      }
+    }
+  },
+  "canonicalHistory": [
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "Need a current answer"
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    }
+  ],
+  "cloudSteps": [
+    {
+      "completion": {
+        "cloudHandoff": false,
+        "text": "Cloud final answer",
+        "toolUses": []
+      },
+      "isEmpty": false
+    }
+  ],
+  "contextInputs": {
+    "attachmentDocuments": [],
+    "memoryDocuments": [],
+    "workspaceFiles": []
+  },
+  "expectation": {
+    "commitStages": [],
+    "exit": "completed",
+    "expectInterruptedToolResult": false,
+    "focusMustContain": [
+      "Turn classification: question"
+    ],
+    "promptMustContain": [
+      "# Current turn focus"
+    ],
+    "recoveryEvents": [
+      "retryingWithCloud",
+      "clearProvisionalOutput"
+    ]
+  },
+  "name": "cloud-retry-sequence",
+  "onDeviceSteps": [
+    {
+      "completion": {
+        "cloudHandoff": true,
+        "text": "Local draft",
+        "toolUses": []
+      },
+      "isEmpty": false
+    }
+  ]
+}

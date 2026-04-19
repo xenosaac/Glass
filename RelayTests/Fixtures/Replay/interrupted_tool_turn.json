@@ -1,0 +1,70 @@
+{
+  "acceptedUserMessage": {
+    "user": {
+      "_0": {
+        "blocks": [
+          {
+            "text": {
+              "_0": "Run the slow tool"
+            }
+          }
+        ],
+        "isMeta": false
+      }
+    }
+  },
+  "canonicalHistory": [
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "Prepare tool continuity test"
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    }
+  ],
+  "cloudSteps": [],
+  "contextInputs": {
+    "attachmentDocuments": [],
+    "memoryDocuments": [],
+    "workspaceFiles": []
+  },
+  "expectation": {
+    "commitStages": [],
+    "exit": "interrupted",
+    "expectInterruptedToolResult": true,
+    "focusMustContain": [
+      "Turn classification: ambiguous"
+    ],
+    "promptMustContain": [
+      "# Current turn focus"
+    ],
+    "recoveryEvents": [
+      "cleaningUpInterruptedTurn",
+      "clearProvisionalOutput"
+    ]
+  },
+  "name": "interrupted-tool-turn",
+  "onDeviceSteps": [
+    {
+      "completion": {
+        "cloudHandoff": false,
+        "text": "",
+        "toolUses": [
+          {
+            "id": "tool-1",
+            "inputJson": "{}",
+            "name": "slow_echo"
+          }
+        ]
+      },
+      "isEmpty": false
+    }
+  ]
+}

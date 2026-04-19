@@ -1,0 +1,157 @@
+{
+  "acceptedUserMessage": {
+    "user": {
+      "_0": {
+        "blocks": [
+          {
+            "text": {
+              "_0": "Explain more clearly"
+            }
+          }
+        ],
+        "isMeta": false
+      }
+    }
+  },
+  "canonicalHistory": [
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "How are you?"
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    },
+    {
+      "assistant": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "I'm doing well, thank you."
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "What is my name?"
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    },
+    {
+      "assistant": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "I do not have access to your name."
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "My name is Isaac, please remember that"
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    },
+    {
+      "assistant": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "I remember that your name is Isaac."
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "What is this about: 1. Harness Contract + PromptCompiler Skeleton"
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    },
+    {
+      "assistant": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "The list describes the goals for refactoring and upgrading various parts of the system architecture across nine main areas."
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "cloudSteps": [],
+  "contextInputs": {
+    "attachmentDocuments": [],
+    "memoryDocuments": [],
+    "workspaceFiles": []
+  },
+  "expectation": {
+    "commitStages": [],
+    "exit": "completed",
+    "expectInterruptedToolResult": false,
+    "focusMustContain": [
+      "Turn classification: referentialFollowup",
+      "Relevant recent conversation:",
+      "Latest user message:"
+    ],
+    "promptMustContain": [
+      "# Current turn focus"
+    ],
+    "recoveryEvents": []
+  },
+  "name": "same-thread-referential-followup",
+  "onDeviceSteps": [
+    {
+      "completion": {
+        "cloudHandoff": false,
+        "text": "It means the list is a roadmap for refactoring nine parts of the system and runtime architecture.",
+        "toolUses": []
+      },
+      "isEmpty": false
+    }
+  ]
+}

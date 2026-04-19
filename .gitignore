@@ -1,0 +1,54 @@
+# macOS
+.DS_Store
+
+# Xcode user state
+xcuserdata/
+*.xcuserstate
+*.xcbkptlist
+*.xcscheme
+
+# Build artifacts
+build/
+.build/
+DerivedData/
+
+# Tooling
+.gstack/
+
+# Local working docs (kept out of the repo)
+*.md
+!README.md
+
+# Plans / scratch
+*.plan
+plans/
+notes/
+
+# Audio recordings
+*.wav
+*.mp3
+recordings/
+
+# Models (large binaries, fetched separately)
+*.bin
+*.gguf
+*.cact
+Frameworks/
+
+# Environment / secrets
+.env
+.env.local
+*.env
+RelayDeveloperSecrets.plist
+
+# Editor swap files
+*.swp
+*~
+*.orig
+*.bak
+
+# Python (for any auxiliary scripts inside the project)
+__pycache__/
+*.py[cod]
+.venv/
+venv/

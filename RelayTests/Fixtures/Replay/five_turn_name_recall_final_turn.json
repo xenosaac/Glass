@@ -1,0 +1,158 @@
+{
+  "acceptedUserMessage": {
+    "user": {
+      "_0": {
+        "blocks": [
+          {
+            "text": {
+              "_0": "What is my name?"
+            }
+          }
+        ],
+        "isMeta": false
+      }
+    }
+  },
+  "canonicalHistory": [
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "Hi, how are you?"
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    },
+    {
+      "assistant": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "I'm doing well, thanks. What's on your mind?"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "What is your name?"
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    },
+    {
+      "assistant": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "My name is Glass."
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "What is my name?"
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    },
+    {
+      "assistant": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "I don't know your name yet. Tell me and I'll remember it."
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "My name is Isaac. Please remember that."
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    },
+    {
+      "assistant": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "Got it. Your name is Isaac."
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "cloudSteps": [],
+  "contextInputs": {
+    "attachmentDocuments": [],
+    "memoryDocuments": [],
+    "workspaceFiles": []
+  },
+  "expectation": {
+    "commitStages": [],
+    "exit": "completed",
+    "expectInterruptedToolResult": false,
+    "focusMustContain": [
+      "Turn classification: factRecallKnown",
+      "Latest visible facts:",
+      "My name is Isaac. Please remember that.",
+      "Latest user message:"
+    ],
+    "promptMustContain": [
+      "# Current turn focus"
+    ],
+    "recoveryEvents": []
+  },
+  "name": "five-turn-name-recall-final-turn",
+  "onDeviceSteps": [
+    {
+      "completion": {
+        "cloudHandoff": false,
+        "text": "Your name is Isaac.",
+        "toolUses": []
+      },
+      "isEmpty": false
+    }
+  ]
+}

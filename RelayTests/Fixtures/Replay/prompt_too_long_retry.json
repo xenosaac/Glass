@@ -1,0 +1,86 @@
+{
+  "acceptedUserMessage": {
+    "user": {
+      "_0": {
+        "blocks": [
+          {
+            "text": {
+              "_0": "What did we decide about the launch?"
+            }
+          }
+        ],
+        "isMeta": false
+      }
+    }
+  },
+  "canonicalHistory": [
+    {
+      "user": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "Earlier question"
+              }
+            }
+          ],
+          "isMeta": false
+        }
+      }
+    },
+    {
+      "assistant": {
+        "_0": {
+          "blocks": [
+            {
+              "text": {
+                "_0": "Earlier answer"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "cloudSteps": [],
+  "contextInputs": {
+    "attachmentDocuments": [],
+    "memoryDocuments": [],
+    "workspaceFiles": []
+  },
+  "expectation": {
+    "commitStages": [],
+    "exit": "completed",
+    "expectInterruptedToolResult": false,
+    "focusMustContain": [
+      "Turn classification: question",
+      "Latest user message:"
+    ],
+    "promptMustContain": [
+      "# Current turn focus"
+    ],
+    "recoveryEvents": [
+      "compactingContext",
+      "clearProvisionalOutput",
+      "retryingAfterContextReduction"
+    ]
+  },
+  "name": "prompt-too-long-retry",
+  "onDeviceSteps": [
+    {
+      "error": {
+        "kind": "promptTooLong",
+        "message": "prompt too long"
+      },
+      "isEmpty": false
+    },
+    {
+      "completion": {
+        "cloudHandoff": false,
+        "text": "After reducing context, the launch decision is still Friday evening.",
+        "toolUses": []
+      },
+      "isEmpty": false
+    }
+  ]
+}
